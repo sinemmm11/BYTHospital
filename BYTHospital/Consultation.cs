@@ -9,6 +9,34 @@ namespace HospitalSystem
     {
         public static List<Consultation> Extent = new List<Consultation>();
 
+        public Patient Patient { get; }
+        public Doctor Doctor { get; }
+
+        private DateTime _date;
+        public DateTime Date
+        {
+            get => _date;
+            set
+            {
+                if (value > DateTime.Now.AddDays(1))
+                    throw new ArgumentException("Consultation date cannot be too far in the future.");
+                _date = value;
+            }
+        }
+
+        private string _notes;
+        public string Notes
+        {
+            get => _notes;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentException("Notes cannot be empty.");
+                _notes = value;
+            }
+        }
+
+        // Senin attribute’un (istersen tut)
         private string _recommendations;
         public string Recommendations
         {
@@ -21,8 +49,14 @@ namespace HospitalSystem
             }
         }
 
-        public Consultation()
+        public Consultation(Patient patient, Doctor doctor, DateTime date, string notes)
         {
+            Patient = patient ?? throw new ArgumentNullException(nameof(patient));
+            Doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
+            Date = date;
+            Notes = notes;
+            Recommendations = "General";
+
             Extent.Add(this);
         }
 
@@ -33,8 +67,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Consultation>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Consultation>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Consultation>>(File.ReadAllText(file));
+            Extent = data ?? new List<Consultation>();
         }
     }
 }

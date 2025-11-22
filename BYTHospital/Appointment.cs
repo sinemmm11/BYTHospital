@@ -9,13 +9,16 @@ namespace HospitalSystem
     {
         public static List<Appointment> Extent = new List<Appointment>();
 
+        public Patient? Patient { get; set; }
+        public Doctor? Doctor { get; set; }
+
         private DateTime _dateTime;
         public DateTime DateTime
         {
             get => _dateTime;
             set
             {
-                if (value < DateTime.Now)
+                if (value < System.DateTime.Now)
                     throw new ArgumentException("Appointment cannot be in the past.");
                 _dateTime = value;
             }
@@ -35,6 +38,8 @@ namespace HospitalSystem
 
         public Appointment()
         {
+            DateTime = System.DateTime.Now.AddHours(1);
+            Status = "Scheduled";
             Extent.Add(this);
         }
 
@@ -45,8 +50,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Appointment>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Appointment>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Appointment>>(File.ReadAllText(file));
+            Extent = data ?? new List<Appointment>();
         }
     }
 }

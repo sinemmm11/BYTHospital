@@ -33,8 +33,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<SurgeryStaffParticipation>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<SurgeryStaffParticipation>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<SurgeryStaffParticipation>>(File.ReadAllText(file));
+            Extent = data ?? new List<SurgeryStaffParticipation>();
         }
     }
 }

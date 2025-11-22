@@ -9,6 +9,9 @@ namespace HospitalSystem
     {
         public static List<Surgery> Extent = new List<Surgery>();
 
+        public Patient Patient { get; }
+        public SurgeonDoctor Surgeon { get; }
+
         private string _type;
         public string Type
         {
@@ -21,25 +24,40 @@ namespace HospitalSystem
             }
         }
 
-        public DateTime StartTime { get; set; }
-
-        private int _duration;
-        public int Duration
+        private DateTime _startTime;
+        public DateTime StartTime
         {
-            get => _duration;
+            get => _startTime;
             set
             {
-                if (value <= 0)
-                    throw new ArgumentOutOfRangeException(nameof(Duration), "Duration must be > 0.");
-                _duration = value;
+                if (value > DateTime.Now.AddYears(1))
+                    throw new ArgumentException("Start time is unrealistic.");
+                _startTime = value;
             }
         }
 
-        public DateTime EndTime { get; set; }
+        // Optional
+        public DateTime? EndTime { get; private set; }
 
-        public Surgery()
+        // Derived
+        public TimeSpan? Duration =>
+            EndTime.HasValue ? EndTime.Value - StartTime : (TimeSpan?)null;
+
+        public Surgery(Patient patient, SurgeonDoctor surgeon, DateTime startTime)
         {
+            Patient = patient ?? throw new ArgumentNullException(nameof(patient));
+            Surgeon = surgeon ?? throw new ArgumentNullException(nameof(surgeon));
+            StartTime = startTime;
+            Type = "General";
+
             Extent.Add(this);
+        }
+
+        public void Finish(DateTime endTime)
+        {
+            if (endTime < StartTime)
+                throw new ArgumentException("End time cannot be before start time");
+            EndTime = endTime;
         }
 
         public static void SaveExtent(string file)
@@ -49,8 +67,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Surgery>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Surgery>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Surgery>>(File.ReadAllText(file));
+            Extent = data ?? new List<Surgery>();
         }
     }
 }

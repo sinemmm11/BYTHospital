@@ -35,9 +35,38 @@ namespace HospitalSystem
 
         public int TotalEmployees { get; set; }
 
+        // Multi-valued ilişkiler (testte kullanılıyor)
+        public List<Doctor> Doctors { get; } = new List<Doctor>();
+        public List<Nurse> Nurses { get; } = new List<Nurse>();
+
         public Department()
         {
             Extent.Add(this);
+        }
+
+        public Department(string name) : this()
+        {
+            Name = name;
+        }
+
+        public void AddDoctor(Doctor doctor)
+        {
+            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (!Doctors.Contains(doctor))
+            {
+                Doctors.Add(doctor);
+                doctor.Department = this;
+            }
+        }
+
+        public void AddNurse(Nurse nurse)
+        {
+            if (nurse == null) throw new ArgumentNullException(nameof(nurse));
+            if (!Nurses.Contains(nurse))
+            {
+                Nurses.Add(nurse);
+                nurse.Department = this;
+            }
         }
 
         public static void SaveExtent(string file)
@@ -47,8 +76,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Department>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Department>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Department>>(File.ReadAllText(file));
+            Extent = data ?? new List<Department>();
         }
     }
 }

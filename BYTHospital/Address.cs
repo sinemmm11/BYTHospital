@@ -44,5 +44,12 @@ namespace HospitalSystem
         public string Postcode { get; set; }
         public string Building { get; set; }
         public string Apartment { get; set; }
+
+        public Address()
+        {
+            Country = "Unknown";
+            City = "Unknown";
+            Street = "Unknown";
+        }
     }
 }

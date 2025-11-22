@@ -9,10 +9,43 @@ namespace HospitalSystem
     {
         public static List<Diagnosis> Extent = new List<Diagnosis>();
 
+        public Patient Patient { get; }
+        public Doctor Doctor { get; }
+
+        private string _description;
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentException("Description cannot be empty.");
+                _description = value;
+            }
+        }
+
+        private DateTime _date;
+        public DateTime Date
+        {
+            get => _date;
+            set
+            {
+                if (value > DateTime.Now)
+                    throw new ArgumentException("Diagnosis date cannot be in the future.");
+                _date = value;
+            }
+        }
+
+        // Senin multi-value attribute’un (kalsın)
         public List<string> IcdCodes { get; set; } = new List<string>();
 
-        public Diagnosis()
+        public Diagnosis(Patient patient, Doctor doctor, string description, DateTime date)
         {
+            Patient = patient ?? throw new ArgumentNullException(nameof(patient));
+            Doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
+            Description = description;
+            Date = date;
+
             Extent.Add(this);
         }
 
@@ -23,8 +56,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Diagnosis>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Diagnosis>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Diagnosis>>(File.ReadAllText(file));
+            Extent = data ?? new List<Diagnosis>();
         }
     }
 }

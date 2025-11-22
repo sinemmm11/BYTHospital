@@ -9,6 +9,20 @@ namespace HospitalSystem
     {
         public static List<Nurse> Extent = new List<Nurse>();
 
+        // Test için gerekli attribute
+        private string _registrationNumber;
+        public string RegistrationNumber
+        {
+            get => _registrationNumber;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentException("Registration number cannot be empty.");
+                _registrationNumber = value;
+            }
+        }
+
+        // Senin ek attribute’un
         private string _shiftDetails;
         public string ShiftDetails
         {
@@ -20,6 +34,8 @@ namespace HospitalSystem
                 _shiftDetails = value;
             }
         }
+
+        public Department? Department { get; set; }
 
         public Nurse()
         {
@@ -33,8 +49,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Nurse>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Nurse>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Nurse>>(File.ReadAllText(file));
+            Extent = data ?? new List<Nurse>();
         }
     }
 }

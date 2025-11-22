@@ -33,8 +33,13 @@ namespace HospitalSystem
             }
         }
 
+        // Optional attribute (test bunu kontrol ediyor)
+        public string? Instructions { get; set; }
+
         public Prescription()
         {
+            Medication = "Unknown";
+            Dosage = "Unknown";
             Extent.Add(this);
         }
 
@@ -45,8 +50,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Prescription>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Prescription>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Prescription>>(File.ReadAllText(file));
+            Extent = data ?? new List<Prescription>();
         }
     }
 }

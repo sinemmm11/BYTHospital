@@ -33,6 +33,9 @@ namespace HospitalSystem
             }
         }
 
+        // Department ile bidirectional ilişki için
+        public Department? Department { get; set; }
+
         public Doctor()
         {
             Extent.Add(this);
@@ -45,8 +48,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Doctor>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Doctor>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Doctor>>(File.ReadAllText(file));
+            Extent = data ?? new List<Doctor>();
         }
     }
 }

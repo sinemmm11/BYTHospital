@@ -47,9 +47,26 @@ namespace HospitalSystem
 
         public bool IsAvailable { get; set; }
 
+        // Multi-valued: RoomAssignments
+        public List<RoomAssignment> Assignments { get; } = new List<RoomAssignment>();
+
+        // Derived: IsFull (testte kullanılıyor)
+        public bool IsFull => Assignments.Count >= Capacity;
+
         public Room()
         {
+            Capacity = 1;
             Extent.Add(this);
+        }
+
+        public void AddAssignment(RoomAssignment assignment)
+        {
+            if (assignment == null) throw new ArgumentNullException(nameof(assignment));
+            if (IsFull)
+                throw new InvalidOperationException("Room is already full");
+
+            if (!Assignments.Contains(assignment))
+                Assignments.Add(assignment);
         }
 
         public static void SaveExtent(string file)
@@ -59,8 +76,14 @@ namespace HospitalSystem
 
         public static void LoadExtent(string file)
         {
-            if (File.Exists(file))
-                Extent = JsonSerializer.Deserialize<List<Room>>(File.ReadAllText(file));
+            if (!File.Exists(file))
+            {
+                Extent = new List<Room>();
+                return;
+            }
+
+            var data = JsonSerializer.Deserialize<List<Room>>(File.ReadAllText(file));
+            Extent = data ?? new List<Room>();
         }
     }
 }
