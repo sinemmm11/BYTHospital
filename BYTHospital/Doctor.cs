@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace HospitalSystem
 {
-    public class Doctor : Person
+    public class Doctor : Employee
     {
         public static List<Doctor> Extent = new List<Doctor>();
 

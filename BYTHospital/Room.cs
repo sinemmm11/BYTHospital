@@ -56,6 +56,7 @@ namespace HospitalSystem
         public Room()
         {
             Capacity = 1;
+            IsAvailable = true;
             Extent.Add(this);
         }
 

@@ -9,6 +9,8 @@ namespace HospitalSystem
     {
         public static List<Department> Extent = new List<Department>();
 
+        public Guid Id { get; private set; }
+
         private string _name;
         public string Name
         {
@@ -41,6 +43,7 @@ namespace HospitalSystem
 
         public Department()
         {
+            Id = Guid.NewGuid();
             Extent.Add(this);
         }
 
