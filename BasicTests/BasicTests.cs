@@ -12,6 +12,41 @@ namespace HospitalSystem.Tests
         // ======================================
 
         [Test]
+        public void Person_NameCannotBeEmpty()
+        {
+            var p = new Patient();
+            Assert.Throws<ArgumentException>(() => p.Name = "");
+        }
+
+        [Test]
+        public void Person_SurnameCannotBeEmpty()
+        {
+            var p = new Patient();
+            Assert.Throws<ArgumentException>(() => p.Surname = "");
+        }
+
+        [Test]
+        public void Person_NationalIdCannotBeEmpty()
+        {
+            var p = new Patient();
+            Assert.Throws<ArgumentException>(() => p.NationalID = "");
+        }
+
+        [Test]
+        public void Person_GenderCannotBeEmpty()
+        {
+            var p = new Patient();
+            Assert.Throws<ArgumentException>(() => p.Gender = "");
+        }
+
+        [Test]
+        public void Person_PhoneNumberCannotBeEmpty()
+        {
+            var p = new Patient();
+            Assert.Throws<ArgumentException>(() => p.PhoneNumber = "");
+        }
+
+        [Test]
         public void Patient_NameCannotBeEmpty()
         {
             var p = new Patient();
@@ -36,6 +71,13 @@ namespace HospitalSystem.Tests
         }
 
         [Test]
+        public void Employee_SalaryCannotBeNegative()
+        {
+            var d = new Doctor();
+            Assert.Throws<ArgumentOutOfRangeException>(() => d.Salary = -100);
+        }
+
+        [Test]
         public void Doctor_SpecializationCannotBeEmpty()
         {
             var d = new Doctor();
@@ -47,6 +89,66 @@ namespace HospitalSystem.Tests
         {
             var d = new Doctor();
             Assert.Throws<ArgumentException>(() => d.LicenseNumber = "");
+        }
+
+        [Test]
+        public void ConsultantDoctor_ConsultingHoursCannotBeEmpty()
+        {
+            var cd = new ConsultantDoctor();
+            Assert.Throws<ArgumentException>(() => cd.ConsultingHours = "");
+        }
+
+        [Test]
+        public void SurgeonDoctor_SurgeonSpecialityCannotBeEmpty()
+        {
+            var sd = new SurgeonDoctor();
+            Assert.Throws<ArgumentException>(() => sd.SurgeonSpeciality = "");
+        }
+
+        [Test]
+        public void ContractorDoctor_SetContractPeriod_ThrowsIfEndDateIsBeforeStartDate()
+        {
+            var doc = new ContractorDoctor();
+            var startDate = new DateTime(2024, 1, 1);
+            var endDate = new DateTime(2023, 12, 31);
+            Assert.Throws<ArgumentException>(() => doc.SetContractPeriod(startDate, endDate));
+        }
+
+        [Test]
+        public void PermanentDoctor_SetEmploymentPeriod_ThrowsIfEndDateIsBeforeStartDate()
+        {
+            var doc = new PermanentDoctor();
+            var startDate = new DateTime(2024, 1, 1);
+            var endDate = new DateTime(2023, 12, 31);
+            Assert.Throws<ArgumentException>(() => doc.SetEmploymentPeriod(startDate, endDate));
+        }
+
+        [Test]
+        public void Nurse_RegistrationNumberCannotBeEmpty()
+        {
+            var n = new Nurse();
+            Assert.Throws<ArgumentException>(() => n.RegistrationNumber = "");
+        }
+
+        [Test]
+        public void Nurse_ShiftDetailsCannotBeEmpty()
+        {
+            var n = new Nurse();
+            Assert.Throws<ArgumentException>(() => n.ShiftDetails = "");
+        }
+
+        [Test]
+        public void Department_NameCannotBeEmpty()
+        {
+            var d = new Department();
+            Assert.Throws<ArgumentException>(() => d.Name = "");
+        }
+
+        [Test]
+        public void Department_LocationCannotBeEmpty()
+        {
+            var d = new Department();
+            Assert.Throws<ArgumentException>(() => d.Location = "");
         }
 
         [Test]
@@ -69,6 +171,56 @@ namespace HospitalSystem.Tests
         {
             var r = new Room();
             Assert.Throws<ArgumentOutOfRangeException>(() => r.Capacity = 0);
+        }
+
+        [Test]
+        public void Room_RoomNumberCannotBeEmpty()
+        {
+            var r = new Room();
+            Assert.Throws<ArgumentException>(() => r.RoomNumber = "");
+        }
+
+        [Test]
+        public void Room_TypeCannotBeEmpty()
+        {
+            var r = new Room();
+            Assert.Throws<ArgumentException>(() => r.Type = "");
+        }
+
+        [Test]
+        public void Room_IsAvailableByDefault()
+        {
+            var room = new Room();
+            Assert.That(room.IsAvailable, Is.True);
+        }
+
+        [Test]
+        public void Room_CanBeSetToUnavailable()
+        {
+            var room = new Room();
+            room.IsAvailable = false;
+            Assert.That(room.IsAvailable, Is.False);
+        }
+
+        [Test]
+        public void Room_CanBeUnavailable_EvenWhenNotFull()
+        {
+            var room = new Room();
+            room.IsAvailable = false;
+
+            Assert.That(room.IsAvailable, Is.False);
+            Assert.That(room.IsFull, Is.False);
+        }
+
+        [Test]
+        public void RoomAssignment_AdmissionDateCannotBeInFuture()
+        {
+            var room = new Room();
+            var patient = new Patient();
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var assignment = new RoomAssignment(patient, room, DateTime.Now.AddDays(1));
+            });
         }
 
         [Test]
@@ -100,10 +252,10 @@ namespace HospitalSystem.Tests
         }
 
         [Test]
-        public void Nurse_RegistrationNumberCannotBeEmpty()
+        public void Address_CountryCannotBeEmpty()
         {
-            var n = new Nurse();
-            Assert.Throws<ArgumentException>(() => n.RegistrationNumber = "");
+            var address = new Address();
+            Assert.Throws<ArgumentException>(() => address.Country = "");
         }
 
         [Test]
@@ -143,6 +295,16 @@ namespace HospitalSystem.Tests
         }
 
         [Test]
+        public void Consultation_RecommendationsCannotBeEmpty()
+        {
+            var p = new Patient();
+            var d = new Doctor();
+
+            var c = new Consultation(p, d, DateTime.Now, "Notes");
+            Assert.Throws<ArgumentException>(() => c.Recommendations = "");
+        }
+
+        [Test]
         public void Consultation_DateTooFarInFutureThrows()
         {
             var p = new Patient();
@@ -170,6 +332,26 @@ namespace HospitalSystem.Tests
         }
 
         [Test]
+        public void Surgery_TypeCannotBeEmpty()
+        {
+            var p = new Patient();
+            var sDoc = new SurgeonDoctor();
+            var surgery = new Surgery(p, sDoc, DateTime.Now);
+            Assert.Throws<ArgumentException>(() => surgery.Type = "");
+        }
+
+        [Test]
+        public void Surgery_StartTimeIsUnrealistic()
+        {
+            var p = new Patient();
+            var sDoc = new SurgeonDoctor();
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var surgery = new Surgery(p, sDoc, DateTime.Now.AddYears(2));
+            });
+        }
+
+        [Test]
         public void Surgery_FinishCannotBeBeforeStartTime()
         {
             var p = new Patient();
@@ -182,6 +364,13 @@ namespace HospitalSystem.Tests
             {
                 surgery.Finish(start.AddMinutes(-10));
             });
+        }
+
+        [Test]
+        public void SurgeryStaffParticipation_RoleCannotBeEmpty()
+        {
+            var ssp = new SurgeryStaffParticipation();
+            Assert.Throws<ArgumentException>(() => ssp.Role = "");
         }
 
 
@@ -363,6 +552,7 @@ namespace HospitalSystem.Tests
             int before = Patient.Extent.Count;
             var p = new Patient();
             Assert.That(Patient.Extent.Count, Is.EqualTo(before + 1));
+            Patient.Extent.Remove(p);
         }
 
         [Test]
@@ -371,6 +561,7 @@ namespace HospitalSystem.Tests
             int before = Doctor.Extent.Count;
             var d = new Doctor();
             Assert.That(Doctor.Extent.Count, Is.EqualTo(before + 1));
+            Doctor.Extent.Remove(d);
         }
 
         [Test]
@@ -379,6 +570,88 @@ namespace HospitalSystem.Tests
             int before = Appointment.Extent.Count;
             var a = new Appointment();
             Assert.That(Appointment.Extent.Count, Is.EqualTo(before + 1));
+            Appointment.Extent.Remove(a);
+        }
+
+        [Test]
+        public void Consultation_ExtentIncreases()
+        {
+            int before = Consultation.Extent.Count;
+            var c = new Consultation(new Patient(), new Doctor(), DateTime.Now, "notes");
+            Assert.That(Consultation.Extent.Count, Is.EqualTo(before + 1));
+            Consultation.Extent.Remove(c);
+        }
+
+        [Test]
+        public void Department_ExtentIncreases()
+        {
+            int before = Department.Extent.Count;
+            var d = new Department();
+            Assert.That(Department.Extent.Count, Is.EqualTo(before + 1));
+            Department.Extent.Remove(d);
+        }
+
+        [Test]
+        public void Diagnosis_ExtentIncreases()
+        {
+            int before = Diagnosis.Extent.Count;
+            var d = new Diagnosis(new Patient(), new Doctor(), "desc", DateTime.Now);
+            Assert.That(Diagnosis.Extent.Count, Is.EqualTo(before + 1));
+            Diagnosis.Extent.Remove(d);
+        }
+
+        [Test]
+        public void Nurse_ExtentIncreases()
+        {
+            int before = Nurse.Extent.Count;
+            var n = new Nurse();
+            Assert.That(Nurse.Extent.Count, Is.EqualTo(before + 1));
+            Nurse.Extent.Remove(n);
+        }
+
+        [Test]
+        public void Prescription_ExtentIncreases()
+        {
+            int before = Prescription.Extent.Count;
+            var p = new Prescription();
+            Assert.That(Prescription.Extent.Count, Is.EqualTo(before + 1));
+            Prescription.Extent.Remove(p);
+        }
+
+        [Test]
+        public void Room_ExtentIncreases()
+        {
+            int before = Room.Extent.Count;
+            var r = new Room();
+            Assert.That(Room.Extent.Count, Is.EqualTo(before + 1));
+            Room.Extent.Remove(r);
+        }
+
+        [Test]
+        public void RoomAssignment_ExtentIncreases()
+        {
+            int before = RoomAssignment.Extent.Count;
+            var ra = new RoomAssignment(new Patient(), new Room(), DateTime.Now);
+            Assert.That(RoomAssignment.Extent.Count, Is.EqualTo(before + 1));
+            RoomAssignment.Extent.Remove(ra);
+        }
+
+        [Test]
+        public void Surgery_ExtentIncreases()
+        {
+            int before = Surgery.Extent.Count;
+            var s = new Surgery(new Patient(), new SurgeonDoctor(), DateTime.Now);
+            Assert.That(Surgery.Extent.Count, Is.EqualTo(before + 1));
+            Surgery.Extent.Remove(s);
+        }
+
+        [Test]
+        public void SurgeryStaffParticipation_ExtentIncreases()
+        {
+            int before = SurgeryStaffParticipation.Extent.Count;
+            var ssp = new SurgeryStaffParticipation();
+            Assert.That(SurgeryStaffParticipation.Extent.Count, Is.EqualTo(before + 1));
+            SurgeryStaffParticipation.Extent.Remove(ssp);
         }
 
 
@@ -409,6 +682,108 @@ namespace HospitalSystem.Tests
 
             if (File.Exists(path))
                 File.Delete(path);
+        }
+
+
+        // ======================================
+        // 7. CONSTRUCTOR AND DEFAULT VALUE TESTS
+        // ======================================
+
+        [Test]
+        public void Address_Constructor_SetsDefaultValues()
+        {
+            var address = new Address();
+            Assert.That(address.Country, Is.EqualTo("Unknown"));
+            Assert.That(address.City, Is.EqualTo("Unknown"));
+            Assert.That(address.Street, Is.EqualTo("Unknown"));
+        }
+
+        [Test]
+        public void Appointment_Constructor_SetsDefaultValues()
+        {
+            var appointment = new Appointment();
+            Assert.That(appointment.Status, Is.EqualTo("Scheduled"));
+            // Check that the date is in the future, approximately one hour from now
+            Assert.That(appointment.DateTime, Is.GreaterThan(DateTime.Now));
+            Assert.That(appointment.DateTime, Is.EqualTo(DateTime.Now.AddHours(1)).Within(TimeSpan.FromSeconds(5)));
+        }
+
+        [Test]
+        public void Prescription_Constructor_SetsDefaultValues()
+        {
+            var prescription = new Prescription();
+            Assert.That(prescription.Medication, Is.EqualTo("Unknown"));
+            Assert.That(prescription.Dosage, Is.EqualTo("Unknown"));
+        }
+
+        [Test]
+        public void Department_Constructor_AssignsId()
+        {
+            var department = new Department();
+            Assert.That(department.Id, Is.Not.EqualTo(Guid.Empty));
+        }
+
+        [Test]
+        public void Consultation_Constructor_ThrowsOnNullPatient()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new Consultation(null, new Doctor(), DateTime.Now, "notes"));
+        }
+
+        [Test]
+        public void Consultation_Constructor_ThrowsOnNullDoctor()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new Consultation(new Patient(), null, DateTime.Now, "notes"));
+        }
+
+        [Test]
+        public void Diagnosis_Constructor_ThrowsOnNullPatient()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new Diagnosis(null, new Doctor(), "desc", DateTime.Now));
+        }
+
+        [Test]
+        public void Diagnosis_Constructor_ThrowsOnNullDoctor()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new Diagnosis(new Patient(), null, "desc", DateTime.Now));
+        }
+
+        [Test]
+        public void RoomAssignment_Constructor_ThrowsOnNullPatient()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new RoomAssignment(null, new Room(), DateTime.Now));
+        }
+
+        [Test]
+        public void RoomAssignment_Constructor_ThrowsOnNullRoom()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new RoomAssignment(new Patient(), null, DateTime.Now));
+        }
+
+        [Test]
+        public void Surgery_Constructor_ThrowsOnNullPatient()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new Surgery(null, new SurgeonDoctor(), DateTime.Now));
+        }
+
+        [Test]
+        public void Surgery_Constructor_ThrowsOnNullSurgeon()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new Surgery(new Patient(), null, DateTime.Now));
+        }
+
+        [Test]
+        public void Room_AddAssignment_ThrowsOnNullAssignment()
+        {
+            var room = new Room();
+            Assert.Throws<ArgumentNullException>(() => room.AddAssignment(null));
         }
     }
 }
