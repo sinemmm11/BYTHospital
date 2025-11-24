@@ -10,7 +10,7 @@ namespace HospitalSystem
         public static List<Nurse> Extent = new List<Nurse>();
 
         // Test için gerekli attribute
-        private string _registrationNumber;
+        private string _registrationNumber = "00000";
         public string RegistrationNumber
         {
             get => _registrationNumber;
@@ -23,7 +23,7 @@ namespace HospitalSystem
         }
 
         // Senin ek attribute’un
-        private string _shiftDetails;
+        private string _shiftDetails = "N/A";
         public string ShiftDetails
         {
             get => _shiftDetails;
@@ -39,6 +39,8 @@ namespace HospitalSystem
 
         public Nurse()
         {
+            RegistrationNumber = "00000";
+            ShiftDetails = "N/A";
             Extent.Add(this);
         }
 

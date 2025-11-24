@@ -9,7 +9,7 @@ namespace HospitalSystem
     {
         public static List<Prescription> Extent = new List<Prescription>();
 
-        private string _medication;
+        private string _medication = "Unknown";
         public string Medication
         {
             get => _medication;
@@ -21,7 +21,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _dosage;
+        private string _dosage = "Unknown";
         public string Dosage
         {
             get => _dosage;
@@ -38,8 +38,6 @@ namespace HospitalSystem
 
         public Prescription()
         {
-            Medication = "Unknown";
-            Dosage = "Unknown";
             Extent.Add(this);
         }
 

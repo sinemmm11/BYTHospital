@@ -727,63 +727,63 @@ namespace HospitalSystem.Tests
         public void Consultation_Constructor_ThrowsOnNullPatient()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new Consultation(null, new Doctor(), DateTime.Now, "notes"));
+                new Consultation(null!, new Doctor(), DateTime.Now, "notes"));
         }
 
         [Test]
         public void Consultation_Constructor_ThrowsOnNullDoctor()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new Consultation(new Patient(), null, DateTime.Now, "notes"));
+                new Consultation(new Patient(), null!, DateTime.Now, "notes"));
         }
 
         [Test]
         public void Diagnosis_Constructor_ThrowsOnNullPatient()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new Diagnosis(null, new Doctor(), "desc", DateTime.Now));
+                new Diagnosis(null!, new Doctor(), "desc", DateTime.Now));
         }
 
         [Test]
         public void Diagnosis_Constructor_ThrowsOnNullDoctor()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new Diagnosis(new Patient(), null, "desc", DateTime.Now));
+                new Diagnosis(new Patient(), null!, "desc", DateTime.Now));
         }
 
         [Test]
         public void RoomAssignment_Constructor_ThrowsOnNullPatient()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new RoomAssignment(null, new Room(), DateTime.Now));
+                new RoomAssignment(null!, new Room(), DateTime.Now));
         }
 
         [Test]
         public void RoomAssignment_Constructor_ThrowsOnNullRoom()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new RoomAssignment(new Patient(), null, DateTime.Now));
+                new RoomAssignment(new Patient(), null!, DateTime.Now));
         }
 
         [Test]
         public void Surgery_Constructor_ThrowsOnNullPatient()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new Surgery(null, new SurgeonDoctor(), DateTime.Now));
+                new Surgery(null!, new SurgeonDoctor(), DateTime.Now));
         }
 
         [Test]
         public void Surgery_Constructor_ThrowsOnNullSurgeon()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new Surgery(new Patient(), null, DateTime.Now));
+                new Surgery(new Patient(), null!, DateTime.Now));
         }
 
         [Test]
         public void Room_AddAssignment_ThrowsOnNullAssignment()
         {
             var room = new Room();
-            Assert.Throws<ArgumentNullException>(() => room.AddAssignment(null));
+            Assert.Throws<ArgumentNullException>(() => room.AddAssignment(null!));
         }
     }
 }

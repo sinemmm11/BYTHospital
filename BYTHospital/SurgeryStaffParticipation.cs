@@ -9,7 +9,7 @@ namespace HospitalSystem
     {
         public static List<SurgeryStaffParticipation> Extent = new List<SurgeryStaffParticipation>();
 
-        private string _role;
+        private string _role = "Unknown";
         public string Role
         {
             get => _role;
@@ -23,6 +23,7 @@ namespace HospitalSystem
 
         public SurgeryStaffParticipation()
         {
+            Role = "Unknown";
             Extent.Add(this);
         }
 

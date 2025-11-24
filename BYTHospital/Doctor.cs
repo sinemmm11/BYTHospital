@@ -9,7 +9,7 @@ namespace HospitalSystem
     {
         public static List<Doctor> Extent = new List<Doctor>();
 
-        private string _specialization;
+        private string _specialization = "General";
         public string Specialization
         {
             get => _specialization;
@@ -21,7 +21,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _licenseNumber;
+        private string _licenseNumber = "00000";
         public string LicenseNumber
         {
             get => _licenseNumber;
@@ -38,6 +38,8 @@ namespace HospitalSystem
 
         public Doctor()
         {
+            Specialization = "General";
+            LicenseNumber = "00000";
             Extent.Add(this);
         }
 

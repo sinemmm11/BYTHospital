@@ -9,7 +9,7 @@ namespace HospitalSystem
     {
         public static List<Room> Extent = new List<Room>();
 
-        private string _roomNumber;
+        private string _roomNumber = "000";
         public string RoomNumber
         {
             get => _roomNumber;
@@ -21,7 +21,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _type;
+        private string _type = "Standard";
         public string Type
         {
             get => _type;
@@ -57,6 +57,8 @@ namespace HospitalSystem
         {
             Capacity = 1;
             IsAvailable = true;
+            RoomNumber = "000";
+            Type = "Standard";
             Extent.Add(this);
         }
 

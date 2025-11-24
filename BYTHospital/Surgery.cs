@@ -12,7 +12,7 @@ namespace HospitalSystem
         public Patient Patient { get; }
         public SurgeonDoctor Surgeon { get; }
 
-        private string _type;
+        private string _type = "General";
         public string Type
         {
             get => _type;

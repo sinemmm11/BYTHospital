@@ -4,7 +4,7 @@ namespace HospitalSystem
 {
     public class Address
     {
-        private string _country;
+        private string _country = "Unknown";
         public string Country
         {
             get => _country;
@@ -16,7 +16,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _city;
+        private string _city = "Unknown";
         public string City
         {
             get => _city;
@@ -28,7 +28,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _street;
+        private string _street = "Unknown";
         public string Street
         {
             get => _street;
@@ -50,6 +50,10 @@ namespace HospitalSystem
             Country = "Unknown";
             City = "Unknown";
             Street = "Unknown";
+            State = "Unknown";
+            Postcode = "Unknown";
+            Building = string.Empty;
+            Apartment = string.Empty;
         }
     }
 }

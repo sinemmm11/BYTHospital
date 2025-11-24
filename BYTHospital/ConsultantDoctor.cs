@@ -4,7 +4,7 @@ namespace HospitalSystem
 {
     public class ConsultantDoctor : Doctor
     {
-        private string _consultingHours;
+        private string _consultingHours = "N/A";
         public string ConsultingHours
         {
             get => _consultingHours;
@@ -14,6 +14,11 @@ namespace HospitalSystem
                     throw new ArgumentException("Consulting hours cannot be empty.");
                 _consultingHours = value;
             }
+        }
+
+        public ConsultantDoctor()
+        {
+            ConsultingHours = "N/A";
         }
     }
 }

@@ -4,7 +4,7 @@ namespace HospitalSystem
 {
     public abstract class Person
     {
-        private string _name;
+        private string _name = "Unknown";
         public string Name
         {
             get => _name;
@@ -16,7 +16,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _surname;
+        private string _surname = "Unknown";
         public string Surname
         {
             get => _surname;
@@ -40,7 +40,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _nationalID;
+        private string _nationalID = "00000000000";
         public string NationalID
         {
             get => _nationalID;
@@ -52,7 +52,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _gender;
+        private string _gender = "Unknown";
         public string Gender
         {
             get => _gender;
@@ -64,7 +64,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _phoneNumber;
+        private string _phoneNumber = "000000000";
         public string PhoneNumber
         {
             get => _phoneNumber;

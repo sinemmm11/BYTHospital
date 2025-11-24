@@ -12,7 +12,7 @@ namespace HospitalSystem
         public Patient Patient { get; }
         public Doctor Doctor { get; }
 
-        private string _description;
+        private string _description = string.Empty;
         public string Description
         {
             get => _description;

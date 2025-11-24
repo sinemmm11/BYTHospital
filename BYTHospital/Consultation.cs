@@ -24,7 +24,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _notes;
+        private string _notes = string.Empty;
         public string Notes
         {
             get => _notes;
@@ -37,7 +37,7 @@ namespace HospitalSystem
         }
 
         // Senin attribute’un (istersen tut)
-        private string _recommendations;
+        private string _recommendations = string.Empty;
         public string Recommendations
         {
             get => _recommendations;

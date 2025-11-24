@@ -4,7 +4,7 @@ namespace HospitalSystem
 {
     public class SurgeonDoctor : Doctor
     {
-        private string _surgeonSpeciality;
+        private string _surgeonSpeciality = "General Surgery";
         public string SurgeonSpeciality
         {
             get => _surgeonSpeciality;
@@ -14,6 +14,11 @@ namespace HospitalSystem
                     throw new ArgumentException("Surgeon speciality cannot be empty.");
                 _surgeonSpeciality = value;
             }
+        }
+
+        public SurgeonDoctor()
+        {
+            SurgeonSpeciality = "General Surgery";
         }
     }
 }

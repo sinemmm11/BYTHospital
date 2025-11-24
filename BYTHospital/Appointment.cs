@@ -24,7 +24,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _status;
+        private string _status = "Scheduled";
         public string Status
         {
             get => _status;

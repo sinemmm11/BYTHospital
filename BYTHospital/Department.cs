@@ -11,7 +11,7 @@ namespace HospitalSystem
 
         public Guid Id { get; private set; }
 
-        private string _name;
+        private string _name = "Unknown";
         public string Name
         {
             get => _name;
@@ -23,7 +23,7 @@ namespace HospitalSystem
             }
         }
 
-        private string _location;
+        private string _location = "Unknown";
         public string Location
         {
             get => _location;
@@ -44,6 +44,8 @@ namespace HospitalSystem
         public Department()
         {
             Id = Guid.NewGuid();
+            Name = "Unknown";
+            Location = "Unknown";
             Extent.Add(this);
         }
 
