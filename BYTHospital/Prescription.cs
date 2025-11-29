@@ -33,7 +33,7 @@ namespace HospitalSystem
             }
         }
 
-        // Optional attribute (test bunu kontrol ediyor)
+       
         public string? Instructions { get; set; }
 
         public Prescription()
