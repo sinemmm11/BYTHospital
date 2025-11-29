@@ -68,16 +68,16 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-        // 🔹 BASİT EXTENT PERSISTENCE (SADECE SAYI KAYDEDİYORUZ)
+        
         public static void SaveExtent(string file)
         {
-            // Sadece hasta sayısını kaydediyoruz
+           
             File.WriteAllText(file, Extent.Count.ToString());
         }
 
         public static void LoadExtent(string file)
         {
-            // Extent'i sıfırla
+           
             Extent = new List<Patient>();
 
             if (!File.Exists(file))
@@ -86,7 +86,7 @@ namespace HospitalSystem
             var text = File.ReadAllText(file);
             if (int.TryParse(text, out int count) && count >= 0)
             {
-                // Kaydedilen sayı kadar yeni Patient oluştur
+               
                 for (int i = 0; i < count; i++)
                 {
                     new Patient();
