@@ -7,9 +7,7 @@ namespace HospitalSystem.Tests
 {
     public class BasicTests
     {
-        // ======================================
-        // 1. ATTRIBUTE VALIDATION TESTLERİ
-        // ======================================
+      
 
         [Test]
         public void Person_NameCannotBeEmpty()
@@ -374,9 +372,7 @@ namespace HospitalSystem.Tests
         }
 
 
-        // ======================================
-        // 2. MULTI-VALUE ATTRIBUTE TESTLERİ
-        // ======================================
+  
 
         [Test]
         public void Patient_AddAllergy_AddsToList()
@@ -436,7 +432,7 @@ namespace HospitalSystem.Tests
         [Test]
         public void Room_IsFull_WhenAssignmentsReachCapacity()
         {
-            var room = new Room(); // Capacity default: 1
+            var room = new Room();
             var patient = new Patient();
 
             var assignment = new RoomAssignment(patient, room, DateTime.Today);
@@ -447,7 +443,7 @@ namespace HospitalSystem.Tests
         [Test]
         public void Room_AddAssignmentThrowsWhenFull()
         {
-            var room = new Room(); // Capacity = 1
+            var room = new Room(); 
             var p1 = new Patient();
             var p2 = new Patient();
 
@@ -462,9 +458,7 @@ namespace HospitalSystem.Tests
         }
 
 
-        // ======================================
-        // 3. OPTIONAL ATTRIBUTE TESTLERİ
-        // ======================================
+        
 
         [Test]
         public void Patient_MiddleNameCanBeNull()
@@ -492,9 +486,7 @@ namespace HospitalSystem.Tests
         }
 
 
-        // ======================================
-        // 4. DERIVED ATTRIBUTE TESTLERİ
-        // ======================================
+      
 
         [Test]
         public void Patient_CalculatedAge_IsCorrect()
@@ -516,7 +508,7 @@ namespace HospitalSystem.Tests
             var patient = new Patient();
 
             var admissionDate = new DateTime(2024, 1, 1);
-            var dischargeDate = new DateTime(2024, 1, 11); // 10 days
+            var dischargeDate = new DateTime(2024, 1, 11);
 
             var assignment = new RoomAssignment(patient, room, admissionDate);
             assignment.Discharge(dischargeDate);
@@ -542,9 +534,7 @@ namespace HospitalSystem.Tests
         }
 
 
-        // ======================================
-        // 5. STATIC / CLASS ATTRIBUTE (EXTENT)
-        // ======================================
+     
 
         [Test]
         public void Patient_ExtentIncreases()
@@ -655,27 +645,25 @@ namespace HospitalSystem.Tests
         }
 
 
-        // ======================================
-        // 6. EXTENT PERSISTENCE (SAVE + LOAD)
-        // ======================================
+      
 
         [Test]
         public void Patient_SaveAndLoadExtent_PreservesSavedCount()
         {
             string path = "patients_test.json";
 
-            // Save öncesi: mevcut extent + iki yeni hasta
+            
             var p1 = new Patient();
             var p2 = new Patient();
             int savedCount = Patient.Extent.Count;
 
             Patient.SaveExtent(path);
 
-            // Save sonrası fazladan bir hasta daha eklensin (extent değişsin)
+           
             var p3 = new Patient();
             Assert.That(Patient.Extent.Count, Is.GreaterThan(savedCount));
 
-            // Load çağırınca save anındaki sayıya dönmeli
+            
             Patient.LoadExtent(path);
 
             Assert.That(Patient.Extent.Count, Is.EqualTo(savedCount));
@@ -685,9 +673,7 @@ namespace HospitalSystem.Tests
         }
 
 
-        // ======================================
-        // 7. CONSTRUCTOR AND DEFAULT VALUE TESTS
-        // ======================================
+       
 
         [Test]
         public void Address_Constructor_SetsDefaultValues()
@@ -703,7 +689,7 @@ namespace HospitalSystem.Tests
         {
             var appointment = new Appointment();
             Assert.That(appointment.Status, Is.EqualTo("Scheduled"));
-            // Check that the date is in the future, approximately one hour from now
+           
             Assert.That(appointment.DateTime, Is.GreaterThan(DateTime.Now));
             Assert.That(appointment.DateTime, Is.EqualTo(DateTime.Now.AddHours(1)).Within(TimeSpan.FromSeconds(5)));
         }
