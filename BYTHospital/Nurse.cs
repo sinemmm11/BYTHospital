@@ -9,7 +9,7 @@ namespace HospitalSystem
     {
         public static List<Nurse> Extent = new List<Nurse>();
 
-        // Test için gerekli attribute
+      
         private string _registrationNumber = "00000";
         public string RegistrationNumber
         {
@@ -22,7 +22,7 @@ namespace HospitalSystem
             }
         }
 
-        // Senin ek attribute’un
+       
         private string _shiftDetails = "N/A";
         public string ShiftDetails
         {
