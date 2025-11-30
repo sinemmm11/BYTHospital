@@ -36,7 +36,7 @@ namespace HospitalSystem
             }
         }
 
-        // Senin attribute’un (istersen tut)
+        
         private string _recommendations = string.Empty;
         public string Recommendations
         {
