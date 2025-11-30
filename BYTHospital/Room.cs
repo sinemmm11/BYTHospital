@@ -50,7 +50,7 @@ namespace HospitalSystem
         // Multi-valued: RoomAssignments
         public List<RoomAssignment> Assignments { get; } = new List<RoomAssignment>();
 
-        // Derived: IsFull (testte kullanılıyor)
+        // Derived: IsFull
         public bool IsFull => Assignments.Count >= Capacity;
 
         public Room()
