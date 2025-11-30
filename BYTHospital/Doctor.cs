@@ -33,7 +33,7 @@ namespace HospitalSystem
             }
         }
 
-        // Department ile bidirectional ilişki için
+        
         public Department? Department { get; set; }
 
         public Doctor()
