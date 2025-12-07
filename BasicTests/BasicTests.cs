@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using HospitalSystem;
 using System;
 using System.IO;
@@ -7,7 +7,7 @@ namespace HospitalSystem.Tests
 {
     public class BasicTests
     {
-      
+       
 
         [Test]
         public void Person_NameCannotBeEmpty()
@@ -210,6 +210,7 @@ namespace HospitalSystem.Tests
             Assert.That(room.IsFull, Is.False);
         }
 
+       
         [Test]
         public void RoomAssignment_AdmissionDateCannotBeInFuture()
         {
@@ -314,6 +315,7 @@ namespace HospitalSystem.Tests
             });
         }
 
+        
         [Test]
         public void RoomAssignment_DischargeCannotBeBeforeAdmission()
         {
@@ -349,6 +351,7 @@ namespace HospitalSystem.Tests
             });
         }
 
+        
         [Test]
         public void Surgery_FinishCannotBeBeforeStartTime()
         {
@@ -370,9 +373,6 @@ namespace HospitalSystem.Tests
             var ssp = new SurgeryStaffParticipation();
             Assert.Throws<ArgumentException>(() => ssp.Role = "");
         }
-
-
-  
 
         [Test]
         public void Patient_AddAllergy_AddsToList()
@@ -405,6 +405,7 @@ namespace HospitalSystem.Tests
             Assert.That(p.Allergies.Count, Is.EqualTo(before));
         }
 
+        
         [Test]
         public void Department_AddDoctor_SetsBidirectionalRelation()
         {
@@ -417,6 +418,7 @@ namespace HospitalSystem.Tests
             Assert.That(doc.Department, Is.EqualTo(dep));
         }
 
+        
         [Test]
         public void Department_AddNurse_SetsBidirectionalRelation()
         {
@@ -429,6 +431,7 @@ namespace HospitalSystem.Tests
             Assert.That(nurse.Department, Is.EqualTo(dep));
         }
 
+        
         [Test]
         public void Room_IsFull_WhenAssignmentsReachCapacity()
         {
@@ -440,6 +443,7 @@ namespace HospitalSystem.Tests
             Assert.That(room.IsFull, Is.True);
         }
 
+        
         [Test]
         public void Room_AddAssignmentThrowsWhenFull()
         {
@@ -456,9 +460,6 @@ namespace HospitalSystem.Tests
                 var a2 = new RoomAssignment(p2, room, DateTime.Today);
             });
         }
-
-
-        
 
         [Test]
         public void Patient_MiddleNameCanBeNull()
@@ -485,9 +486,6 @@ namespace HospitalSystem.Tests
             Assert.That(pr.Instructions, Is.Null);
         }
 
-
-      
-
         [Test]
         public void Patient_CalculatedAge_IsCorrect()
         {
@@ -501,6 +499,7 @@ namespace HospitalSystem.Tests
             Assert.That(p.CalculatedAge, Is.EqualTo(expected));
         }
 
+       
         [Test]
         public void RoomAssignment_StayLengthInDays_IsCorrect()
         {
@@ -508,7 +507,7 @@ namespace HospitalSystem.Tests
             var patient = new Patient();
 
             var admissionDate = new DateTime(2024, 1, 1);
-            var dischargeDate = new DateTime(2024, 1, 11);
+            var dischargeDate = new DateTime(2024, 1, 11); // 10 days
 
             var assignment = new RoomAssignment(patient, room, admissionDate);
             assignment.Discharge(dischargeDate);
@@ -532,9 +531,6 @@ namespace HospitalSystem.Tests
             Assert.That(surgery.Duration.HasValue, Is.True);
             Assert.That(surgery.Duration!.Value.TotalMinutes, Is.GreaterThan(0));
         }
-
-
-     
 
         [Test]
         public void Patient_ExtentIncreases()
@@ -644,26 +640,20 @@ namespace HospitalSystem.Tests
             SurgeryStaffParticipation.Extent.Remove(ssp);
         }
 
-
-      
-
         [Test]
         public void Patient_SaveAndLoadExtent_PreservesSavedCount()
         {
             string path = "patients_test.json";
 
-            
             var p1 = new Patient();
             var p2 = new Patient();
             int savedCount = Patient.Extent.Count;
 
             Patient.SaveExtent(path);
 
-           
             var p3 = new Patient();
             Assert.That(Patient.Extent.Count, Is.GreaterThan(savedCount));
 
-            
             Patient.LoadExtent(path);
 
             Assert.That(Patient.Extent.Count, Is.EqualTo(savedCount));
@@ -671,7 +661,6 @@ namespace HospitalSystem.Tests
             if (File.Exists(path))
                 File.Delete(path);
         }
-
 
        
 
@@ -689,7 +678,7 @@ namespace HospitalSystem.Tests
         {
             var appointment = new Appointment();
             Assert.That(appointment.Status, Is.EqualTo("Scheduled"));
-           
+            // Check that the date is in the future, approximately one hour from now
             Assert.That(appointment.DateTime, Is.GreaterThan(DateTime.Now));
             Assert.That(appointment.DateTime, Is.EqualTo(DateTime.Now.AddHours(1)).Within(TimeSpan.FromSeconds(5)));
         }
@@ -709,6 +698,7 @@ namespace HospitalSystem.Tests
             Assert.That(department.Id, Is.Not.EqualTo(Guid.Empty));
         }
 
+       
         [Test]
         public void Consultation_Constructor_ThrowsOnNullPatient()
         {
@@ -716,6 +706,7 @@ namespace HospitalSystem.Tests
                 new Consultation(null!, new Doctor(), DateTime.Now, "notes"));
         }
 
+       
         [Test]
         public void Consultation_Constructor_ThrowsOnNullDoctor()
         {
@@ -723,6 +714,7 @@ namespace HospitalSystem.Tests
                 new Consultation(new Patient(), null!, DateTime.Now, "notes"));
         }
 
+       
         [Test]
         public void Diagnosis_Constructor_ThrowsOnNullPatient()
         {
@@ -730,6 +722,7 @@ namespace HospitalSystem.Tests
                 new Diagnosis(null!, new Doctor(), "desc", DateTime.Now));
         }
 
+       
         [Test]
         public void Diagnosis_Constructor_ThrowsOnNullDoctor()
         {
@@ -737,6 +730,7 @@ namespace HospitalSystem.Tests
                 new Diagnosis(new Patient(), null!, "desc", DateTime.Now));
         }
 
+       
         [Test]
         public void RoomAssignment_Constructor_ThrowsOnNullPatient()
         {
@@ -744,6 +738,7 @@ namespace HospitalSystem.Tests
                 new RoomAssignment(null!, new Room(), DateTime.Now));
         }
 
+        
         [Test]
         public void RoomAssignment_Constructor_ThrowsOnNullRoom()
         {
@@ -751,6 +746,7 @@ namespace HospitalSystem.Tests
                 new RoomAssignment(new Patient(), null!, DateTime.Now));
         }
 
+        
         [Test]
         public void Surgery_Constructor_ThrowsOnNullPatient()
         {
@@ -758,6 +754,7 @@ namespace HospitalSystem.Tests
                 new Surgery(null!, new SurgeonDoctor(), DateTime.Now));
         }
 
+       
         [Test]
         public void Surgery_Constructor_ThrowsOnNullSurgeon()
         {
