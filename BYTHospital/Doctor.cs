@@ -7,7 +7,7 @@ namespace HospitalSystem
 {
     public class Doctor : Employee
     {
-        public static List<Doctor> Extent = new List<Doctor>();
+        public static List<Doctor> Extent = new();
 
         private string _specialization = "General";
         public string Specialization
@@ -33,8 +33,41 @@ namespace HospitalSystem
             }
         }
 
+       
+        public List<Patient> ResponsibleForPatients { get; } = new();
+
+        public void AddResponsiblePatient(Patient patient)
+        {
+            if (patient == null) throw new ArgumentNullException(nameof(patient));
+            if (!ResponsibleForPatients.Contains(patient))
+            {
+                ResponsibleForPatients.Add(patient);
+                patient.AddResponsibleDoctor(this);
+            }
+        }
+
+        public void RemoveResponsiblePatient(Patient patient)
+        {
+            if (patient == null) throw new ArgumentNullException(nameof(patient));
+            if (ResponsibleForPatients.Remove(patient))
+                patient.RemoveResponsibleDoctor(this);
+        }
+
         
-        public Department? Department { get; set; }
+        public List<Appointment> ConductedAppointments { get; } = new();
+
+        internal void AddConductedAppointment(Appointment a)
+        {
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            if (!ConductedAppointments.Contains(a))
+                ConductedAppointments.Add(a);
+        }
+
+        internal void RemoveConductedAppointment(Appointment a)
+        {
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            ConductedAppointments.Remove(a);
+        }
 
         public Doctor()
         {
@@ -43,21 +76,13 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Doctor>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Doctor>>(File.ReadAllText(file));
-            Extent = data ?? new List<Doctor>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Doctor>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
