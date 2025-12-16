@@ -7,7 +7,7 @@ namespace HospitalSystem
 {
     public class Department
     {
-        public static List<Department> Extent = new List<Department>();
+        public static List<Department> Extent = new();
 
         public Guid Id { get; private set; }
 
@@ -35,11 +35,13 @@ namespace HospitalSystem
             }
         }
 
-        public int TotalEmployees { get; set; }
+       
+        public int TotalEmployees => Employees.Count;
 
-        // Multi-valued ilişkiler (testte kullanılıyor)
-        public List<Doctor> Doctors { get; } = new List<Doctor>();
-        public List<Nurse> Nurses { get; } = new List<Nurse>();
+        public List<Employee> Employees { get; } = new();
+        public List<Doctor> Doctors { get; } = new();
+        public List<Nurse> Nurses { get; } = new();
+        public List<Room> Rooms { get; } = new();
 
         public Department()
         {
@@ -49,46 +51,49 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-        public Department(string name) : this()
+        public Department(string name) : this() => Name = name;
+
+        public void AddEmployee(Employee emp)
         {
-            Name = name;
+            if (emp == null) throw new ArgumentNullException(nameof(emp));
+            if (!Employees.Contains(emp))
+            {
+                Employees.Add(emp);
+                emp.Department = this;
+            }
         }
 
         public void AddDoctor(Doctor doctor)
         {
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            if (!Doctors.Contains(doctor))
-            {
-                Doctors.Add(doctor);
-                doctor.Department = this;
-            }
+            AddEmployee(doctor);
+            if (!Doctors.Contains(doctor)) Doctors.Add(doctor);
         }
 
         public void AddNurse(Nurse nurse)
         {
             if (nurse == null) throw new ArgumentNullException(nameof(nurse));
-            if (!Nurses.Contains(nurse))
+            AddEmployee(nurse);
+            if (!Nurses.Contains(nurse)) Nurses.Add(nurse);
+        }
+
+        public void AddRoom(Room room)
+        {
+            if (room == null) throw new ArgumentNullException(nameof(room));
+            if (!Rooms.Contains(room))
             {
-                Nurses.Add(nurse);
-                nurse.Department = this;
+                Rooms.Add(room);
+                room.Department = this;
             }
         }
 
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Department>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Department>>(File.ReadAllText(file));
-            Extent = data ?? new List<Department>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Department>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
