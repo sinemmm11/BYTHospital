@@ -8,31 +8,41 @@ namespace HospitalSystem
     {
         public static List<Patient> Extent { get; private set; } = new();
 
-       
+        
         public List<Doctor> ResponsibleDoctors { get; } = new();
 
         public void AddResponsibleDoctor(Doctor doctor)
         {
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (ResponsibleDoctors.Contains(doctor)) return;
 
-            if (!ResponsibleDoctors.Contains(doctor))
-            {
-                ResponsibleDoctors.Add(doctor);
-                doctor.AddResponsiblePatient(this); 
-            }
+            ResponsibleDoctors.Add(doctor);
+            doctor.InternalAddResponsiblePatient(this); 
         }
 
         public void RemoveResponsibleDoctor(Doctor doctor)
         {
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (!ResponsibleDoctors.Remove(doctor)) return;
 
-            if (ResponsibleDoctors.Remove(doctor))
-            {
-                doctor.RemoveResponsiblePatient(this); 
-            }
+            doctor.InternalRemoveResponsiblePatient(this);
         }
 
-        
+       
+        internal void InternalAddResponsibleDoctor(Doctor doctor)
+        {
+            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (!ResponsibleDoctors.Contains(doctor))
+                ResponsibleDoctors.Add(doctor);
+        }
+
+        internal void InternalRemoveResponsibleDoctor(Doctor doctor)
+        {
+            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            ResponsibleDoctors.Remove(doctor);
+        }
+
+       
         public List<Appointment> Appointments { get; } = new();
 
         internal void AddAppointment(Appointment a)
@@ -48,6 +58,7 @@ namespace HospitalSystem
             Appointments.Remove(a);
         }
 
+       
         private int _age;
         public int Age
         {
@@ -113,7 +124,7 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-       
+        
         public static void SaveExtent(string file)
         {
             File.WriteAllText(file, Extent.Count.ToString());
