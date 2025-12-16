@@ -10,9 +10,7 @@ namespace HospitalSystem
         public void SetEmploymentPeriod(DateTime startDate, DateTime? endDate)
         {
             if (endDate.HasValue && endDate.Value < startDate)
-            {
                 throw new ArgumentException("Employment end date cannot be before the start date.");
-            }
             EmploymentStartDate = startDate;
             EmploymentEndDate = endDate;
         }
