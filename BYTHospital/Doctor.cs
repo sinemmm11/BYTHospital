@@ -39,18 +39,32 @@ namespace HospitalSystem
         public void AddResponsiblePatient(Patient patient)
         {
             if (patient == null) throw new ArgumentNullException(nameof(patient));
-            if (!ResponsibleForPatients.Contains(patient))
-            {
-                ResponsibleForPatients.Add(patient);
-                patient.AddResponsibleDoctor(this);
-            }
+            if (ResponsibleForPatients.Contains(patient)) return;
+
+            ResponsibleForPatients.Add(patient);
+            patient.InternalAddResponsibleDoctor(this); 
         }
 
         public void RemoveResponsiblePatient(Patient patient)
         {
             if (patient == null) throw new ArgumentNullException(nameof(patient));
-            if (ResponsibleForPatients.Remove(patient))
-                patient.RemoveResponsibleDoctor(this);
+            if (!ResponsibleForPatients.Remove(patient)) return;
+
+            patient.InternalRemoveResponsibleDoctor(this);
+        }
+
+       
+        internal void InternalAddResponsiblePatient(Patient patient)
+        {
+            if (patient == null) throw new ArgumentNullException(nameof(patient));
+            if (!ResponsibleForPatients.Contains(patient))
+                ResponsibleForPatients.Add(patient);
+        }
+
+        internal void InternalRemoveResponsiblePatient(Patient patient)
+        {
+            if (patient == null) throw new ArgumentNullException(nameof(patient));
+            ResponsibleForPatients.Remove(patient);
         }
 
         
@@ -59,8 +73,7 @@ namespace HospitalSystem
         internal void AddConductedAppointment(Appointment a)
         {
             if (a == null) throw new ArgumentNullException(nameof(a));
-            if (!ConductedAppointments.Contains(a))
-                ConductedAppointments.Add(a);
+            if (!ConductedAppointments.Contains(a)) ConductedAppointments.Add(a);
         }
 
         internal void RemoveConductedAppointment(Appointment a)
