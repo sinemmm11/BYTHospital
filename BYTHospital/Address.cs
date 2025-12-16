@@ -40,20 +40,18 @@ namespace HospitalSystem
             }
         }
 
-        public string State { get; set; }
-        public string Postcode { get; set; }
-        public string Building { get; set; }
-        public string Apartment { get; set; }
+        public string State { get; set; } = "Unknown";
+        public string Postcode { get; set; } = "Unknown";
+        public string Building { get; set; } = string.Empty;
+
+        
+        public string? Apartment { get; set; } = null;
 
         public Address()
         {
             Country = "Unknown";
             City = "Unknown";
             Street = "Unknown";
-            State = "Unknown";
-            Postcode = "Unknown";
-            Building = string.Empty;
-            Apartment = string.Empty;
         }
     }
 }
