@@ -7,10 +7,13 @@ namespace HospitalSystem
 {
     public class Surgery
     {
-        public static List<Surgery> Extent = new List<Surgery>();
+        public static List<Surgery> Extent = new();
 
         public Patient Patient { get; }
         public SurgeonDoctor Surgeon { get; }
+
+        
+        public List<SurgeryStaffParticipation> Staff { get; } = new();
 
         private string _type = "General";
         public string Type
@@ -36,10 +39,8 @@ namespace HospitalSystem
             }
         }
 
-        // Optional
         public DateTime? EndTime { get; private set; }
 
-        // Derived
         public TimeSpan? Duration =>
             EndTime.HasValue ? EndTime.Value - StartTime : (TimeSpan?)null;
 
@@ -49,7 +50,6 @@ namespace HospitalSystem
             Surgeon = surgeon ?? throw new ArgumentNullException(nameof(surgeon));
             StartTime = startTime;
             Type = "General";
-
             Extent.Add(this);
         }
 
@@ -57,24 +57,22 @@ namespace HospitalSystem
         {
             if (endTime < StartTime)
                 throw new ArgumentException("End time cannot be before start time");
+
             EndTime = endTime;
         }
 
-        public static void SaveExtent(string file)
+        internal void AddStaffParticipation(SurgeryStaffParticipation p)
         {
-            File.WriteAllText(file, JsonSerializer.Serialize(Extent));
+            if (!Staff.Contains(p)) Staff.Add(p);
         }
+
+        public static void SaveExtent(string file) =>
+            File.WriteAllText(file, JsonSerializer.Serialize(Extent));
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Surgery>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Surgery>>(File.ReadAllText(file));
-            Extent = data ?? new List<Surgery>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Surgery>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
