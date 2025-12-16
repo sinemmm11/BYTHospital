@@ -9,8 +9,8 @@ namespace HospitalSystem
     {
         public static List<SurgeryStaffParticipation> Extent = new();
 
-        public Surgery Surgery { get; private set; }
-        public Employee StaffMember { get; private set; }
+        public Surgery Surgery { get; private set; } = null!;
+        public Employee StaffMember { get; private set; } = null!;
 
         private string _role = "Unknown";
         public string Role
@@ -36,8 +36,8 @@ namespace HospitalSystem
             StaffMember = staff ?? throw new ArgumentNullException(nameof(staff));
             Role = role;
 
-           
-           
+            
+            surgery.AddStaffParticipation(this);
             staff.InternalAddSurgeryParticipation(this);
         }
 
