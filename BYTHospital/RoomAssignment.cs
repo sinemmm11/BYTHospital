@@ -7,7 +7,7 @@ namespace HospitalSystem
 {
     public class RoomAssignment
     {
-        public static List<RoomAssignment> Extent = new List<RoomAssignment>();
+        public static List<RoomAssignment> Extent = new();
 
         public Patient Patient { get; }
         public Room Room { get; }
@@ -24,10 +24,10 @@ namespace HospitalSystem
             }
         }
 
-        // optional
+        
         public DateTime? DischargeDate { get; private set; }
 
-        // Derived
+        
         public int StayLengthInDays
         {
             get
@@ -54,21 +54,13 @@ namespace HospitalSystem
             DischargeDate = dischargeDate;
         }
 
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<RoomAssignment>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<RoomAssignment>>(File.ReadAllText(file));
-            Extent = data ?? new List<RoomAssignment>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<RoomAssignment>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
