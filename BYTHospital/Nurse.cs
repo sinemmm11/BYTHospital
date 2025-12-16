@@ -7,9 +7,8 @@ namespace HospitalSystem
 {
     public class Nurse : Employee
     {
-        public static List<Nurse> Extent = new List<Nurse>();
+        public static List<Nurse> Extent = new();
 
-      
         private string _registrationNumber = "00000";
         public string RegistrationNumber
         {
@@ -22,7 +21,6 @@ namespace HospitalSystem
             }
         }
 
-       
         private string _shiftDetails = "N/A";
         public string ShiftDetails
         {
@@ -35,7 +33,21 @@ namespace HospitalSystem
             }
         }
 
-        public Department? Department { get; set; }
+        
+        public List<Appointment> AssistedAppointments { get; } = new();
+
+        internal void AddAssistedAppointment(Appointment a)
+        {
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            if (!AssistedAppointments.Contains(a))
+                AssistedAppointments.Add(a);
+        }
+
+        internal void RemoveAssistedAppointment(Appointment a)
+        {
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            AssistedAppointments.Remove(a);
+        }
 
         public Nurse()
         {
@@ -44,21 +56,13 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Nurse>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Nurse>>(File.ReadAllText(file));
-            Extent = data ?? new List<Nurse>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Nurse>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
