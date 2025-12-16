@@ -7,7 +7,10 @@ namespace HospitalSystem
 {
     public class SurgeryStaffParticipation
     {
-        public static List<SurgeryStaffParticipation> Extent = new List<SurgeryStaffParticipation>();
+        public static List<SurgeryStaffParticipation> Extent = new();
+
+        public Surgery Surgery { get; private set; }
+        public Employee StaffMember { get; private set; }
 
         private string _role = "Unknown";
         public string Role
@@ -27,21 +30,24 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-        public static void SaveExtent(string file)
+        public SurgeryStaffParticipation(Surgery surgery, Employee staff, string role) : this()
         {
-            File.WriteAllText(file, JsonSerializer.Serialize(Extent));
+            Surgery = surgery ?? throw new ArgumentNullException(nameof(surgery));
+            StaffMember = staff ?? throw new ArgumentNullException(nameof(staff));
+            Role = role;
+
+           
+           
+            staff.InternalAddSurgeryParticipation(this);
         }
+
+        public static void SaveExtent(string file) =>
+            File.WriteAllText(file, JsonSerializer.Serialize(Extent));
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<SurgeryStaffParticipation>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<SurgeryStaffParticipation>>(File.ReadAllText(file));
-            Extent = data ?? new List<SurgeryStaffParticipation>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<SurgeryStaffParticipation>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
