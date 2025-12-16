@@ -7,7 +7,7 @@ namespace HospitalSystem
 {
     public class Diagnosis
     {
-        public static List<Diagnosis> Extent = new List<Diagnosis>();
+        public static List<Diagnosis> Extent = new();
 
         public Patient Patient { get; }
         public Doctor Doctor { get; }
@@ -36,8 +36,8 @@ namespace HospitalSystem
             }
         }
 
-        // Senin multi-value attribute’un (kalsın)
-        public List<string> IcdCodes { get; set; } = new List<string>();
+       
+        public List<string> IcdCodes { get; set; } = new();
 
         public Diagnosis(Patient patient, Doctor doctor, string description, DateTime date)
         {
@@ -45,25 +45,16 @@ namespace HospitalSystem
             Doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
             Description = description;
             Date = date;
-
             Extent.Add(this);
         }
 
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Diagnosis>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Diagnosis>>(File.ReadAllText(file));
-            Extent = data ?? new List<Diagnosis>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Diagnosis>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
