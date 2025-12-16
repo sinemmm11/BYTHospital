@@ -7,7 +7,10 @@ namespace HospitalSystem
 {
     public class Room
     {
-        public static List<Room> Extent = new List<Room>();
+        public static List<Room> Extent = new();
+
+        
+        public Department? Department { get; internal set; }
 
         private string _roomNumber = "000";
         public string RoomNumber
@@ -47,10 +50,9 @@ namespace HospitalSystem
 
         public bool IsAvailable { get; set; }
 
-        // Multi-valued: RoomAssignments
-        public List<RoomAssignment> Assignments { get; } = new List<RoomAssignment>();
+        public List<RoomAssignment> Assignments { get; } = new();
 
-        // Derived: IsFull
+        
         public bool IsFull => Assignments.Count >= Capacity;
 
         public Room()
@@ -65,28 +67,17 @@ namespace HospitalSystem
         public void AddAssignment(RoomAssignment assignment)
         {
             if (assignment == null) throw new ArgumentNullException(nameof(assignment));
-            if (IsFull)
-                throw new InvalidOperationException("Room is already full");
-
-            if (!Assignments.Contains(assignment))
-                Assignments.Add(assignment);
+            if (IsFull) throw new InvalidOperationException("Room is already full");
+            if (!Assignments.Contains(assignment)) Assignments.Add(assignment);
         }
 
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Room>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Room>>(File.ReadAllText(file));
-            Extent = data ?? new List<Room>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Room>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
