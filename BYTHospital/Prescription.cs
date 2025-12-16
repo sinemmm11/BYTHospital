@@ -7,7 +7,7 @@ namespace HospitalSystem
 {
     public class Prescription
     {
-        public static List<Prescription> Extent = new List<Prescription>();
+        public static List<Prescription> Extent = new();
 
         private string _medication = "Unknown";
         public string Medication
@@ -41,21 +41,13 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Prescription>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Prescription>>(File.ReadAllText(file));
-            Extent = data ?? new List<Prescription>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Prescription>>(File.ReadAllText(file)) ?? new();
         }
     }
 }
