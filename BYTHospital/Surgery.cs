@@ -12,7 +12,7 @@ namespace HospitalSystem
         public Patient Patient { get; }
         public SurgeonDoctor Surgeon { get; }
 
-        
+       
         public List<SurgeryStaffParticipation> Staff { get; } = new();
 
         private string _type = "General";
@@ -50,6 +50,7 @@ namespace HospitalSystem
             Surgeon = surgeon ?? throw new ArgumentNullException(nameof(surgeon));
             StartTime = startTime;
             Type = "General";
+
             Extent.Add(this);
         }
 
@@ -63,6 +64,7 @@ namespace HospitalSystem
 
         internal void AddStaffParticipation(SurgeryStaffParticipation p)
         {
+            if (p == null) throw new ArgumentNullException(nameof(p));
             if (!Staff.Contains(p)) Staff.Add(p);
         }
 
