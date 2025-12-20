@@ -9,37 +9,35 @@ namespace HospitalSystem
         public static List<Patient> Extent { get; private set; } = new();
 
         
-        public List<Doctor> ResponsibleDoctors { get; } = new();
+        public Doctor ResponsibleDoctor { get; set; } = new();
 
         public void AddResponsibleDoctor(Doctor doctor)
         {
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            if (ResponsibleDoctors.Contains(doctor)) return;
+            if (ResponsibleDoctor==doctor) return;
 
-            ResponsibleDoctors.Add(doctor);
+            ResponsibleDoctor = doctor;
             doctor.InternalAddResponsiblePatient(this); 
         }
 
-        public void RemoveResponsibleDoctor(Doctor doctor)
+        public void RemoveResponsibleDoctor()
         {
-            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            if (!ResponsibleDoctors.Remove(doctor)) return;
-
-            doctor.InternalRemoveResponsiblePatient(this);
+            ResponsibleDoctor = null;
+                
+            ResponsibleDoctor.InternalRemoveResponsiblePatient(this);
         }
 
        
         internal void InternalAddResponsibleDoctor(Doctor doctor)
         {
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            if (!ResponsibleDoctors.Contains(doctor))
-                ResponsibleDoctors.Add(doctor);
+            if (ResponsibleDoctor!=doctor)
+                ResponsibleDoctor = doctor;
         }
 
-        internal void InternalRemoveResponsibleDoctor(Doctor doctor)
+        internal void InternalRemoveResponsibleDoctor()
         {
-            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            ResponsibleDoctors.Remove(doctor);
+            ResponsibleDoctor = null;
         }
 
        
