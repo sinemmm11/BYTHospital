@@ -1,101 +1,146 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 
 namespace HospitalSystem
 {
-    public class Doctor : Employee
+    public class Patient : Person
     {
-        public static List<Doctor> Extent = new();
-
-        private string _specialization = "General";
-        public string Specialization
-        {
-            get => _specialization;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentException("Specialization cannot be empty.");
-                _specialization = value;
-            }
-        }
-
-        private string _licenseNumber = "00000";
-        public string LicenseNumber
-        {
-            get => _licenseNumber;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentException("License number cannot be empty.");
-                _licenseNumber = value;
-            }
-        }
-
-       
-        public List<Patient> ResponsibleForPatients { get; } = new();
-
-        public void AddResponsiblePatient(Patient patient)
-        {
-            if (patient == null) throw new ArgumentNullException(nameof(patient));
-            if (ResponsibleForPatients.Contains(patient)) return;
-
-            ResponsibleForPatients.Add(patient);
-            patient.InternalAddResponsibleDoctor(this); 
-        }
-
-        public void RemoveResponsiblePatient(Patient patient)
-        {
-            if (patient == null) throw new ArgumentNullException(nameof(patient));
-            if (!ResponsibleForPatients.Remove(patient)) return;
-
-            patient.InternalRemoveResponsibleDoctor(this);
-        }
-
-       
-        internal void InternalAddResponsiblePatient(Patient patient)
-        {
-            if (patient == null) throw new ArgumentNullException(nameof(patient));
-            if (!ResponsibleForPatients.Contains(patient))
-                ResponsibleForPatients.Add(patient);
-        }
-
-        internal void InternalRemoveResponsiblePatient(Patient patient)
-        {
-            if (patient == null) throw new ArgumentNullException(nameof(patient));
-            ResponsibleForPatients.Remove(patient);
-        }
+        public static List<Patient> Extent { get; private set; } = new();
 
         
-        public List<Appointment> ConductedAppointments { get; } = new();
+        public Doctor ResponsibleDoctor { get; set; } = new();
 
-        internal void AddConductedAppointment(Appointment a)
+        public void AddResponsibleDoctor(Doctor doctor)
         {
-            if (a == null) throw new ArgumentNullException(nameof(a));
-            if (!ConductedAppointments.Contains(a)) ConductedAppointments.Add(a);
+            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (ResponsibleDoctor==doctor) return;
+
+            ResponsibleDoctor = doctor;
+            doctor.InternalAddResponsiblePatient(this); 
         }
 
-        internal void RemoveConductedAppointment(Appointment a)
+        public void RemoveResponsibleDoctor()
         {
-            if (a == null) throw new ArgumentNullException(nameof(a));
-            ConductedAppointments.Remove(a);
+            ResponsibleDoctor = null;
+                
+            ResponsibleDoctor.InternalRemoveResponsiblePatient(this);
         }
 
-        public Doctor()
+       
+        internal void InternalAddResponsibleDoctor(Doctor doctor)
         {
-            Specialization = "General";
-            LicenseNumber = "00000";
+            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (ResponsibleDoctor!=doctor)
+                ResponsibleDoctor = doctor;
+        }
+
+        internal void InternalRemoveResponsibleDoctor()
+        {
+            ResponsibleDoctor = null;
+        }
+
+       
+        public List<Appointment> Appointments { get; } = new();
+
+        internal void AddAppointment(Appointment a)
+        {
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            if (!Appointments.Contains(a))
+                Appointments.Add(a);
+        }
+
+        internal void RemoveAppointment(Appointment a)
+        {
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            Appointments.Remove(a);
+        }
+
+       
+        private int _age;
+        public int Age
+        {
+            get => _age;
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(Age), "Age cannot be negative.");
+                _age = value;
+            }
+        }
+
+        private DateTime _birthDate = DateTime.Today.AddYears(-18);
+        public DateTime BirthDate
+        {
+            get => _birthDate;
+            set
+            {
+                if (value > DateTime.Today)
+                    throw new ArgumentException("Birth date cannot be in the future");
+                _birthDate = value;
+            }
+        }
+
+        public int CalculatedAge
+        {
+            get
+            {
+                var today = DateTime.Today;
+                int age = today.Year - BirthDate.Year;
+                if (BirthDate.Date > today.AddYears(-age)) age--;
+                return age;
+            }
+        }
+
+        public string? MiddleName { get; private set; }
+        public void SetMiddleName(string? middleName)
+        {
+            if (middleName != null && string.IsNullOrWhiteSpace(middleName))
+                throw new ArgumentException("Middle name cannot be only whitespace");
+            MiddleName = middleName;
+        }
+
+        public List<string> Allergies { get; } = new();
+        public void AddAllergy(string allergy)
+        {
+            if (string.IsNullOrWhiteSpace(allergy))
+                throw new ArgumentException("Allergy cannot be empty");
+
+            if (!Allergies.Contains(allergy))
+                Allergies.Add(allergy);
+        }
+
+        public Patient()
+        {
+            
+            Name = "Unknown";
+            Surname = "Unknown";
+            NationalID = "00000000000";
+            Gender = "Unknown";
+            PhoneNumber = "000000000";
+
             Extent.Add(this);
         }
 
-        public static void SaveExtent(string file) =>
-            File.WriteAllText(file, JsonSerializer.Serialize(Extent));
+        
+        public static void SaveExtent(string file)
+        {
+            File.WriteAllText(file, Extent.Count.ToString());
+        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file)) { Extent = new(); return; }
-            Extent = JsonSerializer.Deserialize<List<Doctor>>(File.ReadAllText(file)) ?? new();
+            Extent = new List<Patient>();
+
+            if (!File.Exists(file))
+                return;
+
+            var text = File.ReadAllText(file);
+            if (int.TryParse(text, out int count) && count >= 0)
+            {
+                for (int i = 0; i < count; i++)
+                    new Patient();
+            }
         }
     }
 }
