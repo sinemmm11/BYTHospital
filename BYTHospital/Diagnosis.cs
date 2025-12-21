@@ -9,8 +9,48 @@ namespace HospitalSystem
     {
         public static List<Diagnosis> Extent = new();
 
-        public Patient Patient { get; }
-        public Doctor Doctor { get; }
+        private MedicalRecord _medicalRecord = default!;
+        public MedicalRecord MedicalRecord
+        {
+            get => _medicalRecord;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(MedicalRecord));
+                if (_medicalRecord == value) return;
+
+                _medicalRecord?.Diagnoses.Remove(this);
+                _medicalRecord = value;
+                _medicalRecord.Diagnoses.Add(this);
+            }
+        }
+
+        private Appointment? _sourceAppointment;
+        public Appointment? SourceAppointment
+        {
+            get => _sourceAppointment;
+            set
+            {
+                if (_sourceAppointment == value) return;
+                var oldAppt = _sourceAppointment;
+                _sourceAppointment = value;
+                if (oldAppt != null) oldAppt.Diagnosis = null;
+                if (_sourceAppointment != null) _sourceAppointment.Diagnosis = this;
+            }
+        }
+
+        private Consultation? _consultation;
+        public Consultation? Consultation
+        {
+            get => _consultation;
+            set
+            {
+                if (_consultation == value) return;
+                var oldConsult = _consultation;
+                _consultation = value;
+                if (oldConsult != null) oldConsult.InternalRemoveDiagnosis(this);
+                if (_consultation != null) _consultation.InternalAddDiagnosis(this);
+            }
+        }
 
         private string _description = string.Empty;
         public string Description
@@ -39,10 +79,12 @@ namespace HospitalSystem
        
         public List<string> IcdCodes { get; set; } = new();
 
-        public Diagnosis(Patient patient, Doctor doctor, string description, DateTime date)
+        public Diagnosis(MedicalRecord record, string description, DateTime date)
         {
-            Patient = patient ?? throw new ArgumentNullException(nameof(patient));
-            Doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
+            if (record == null) throw new ArgumentNullException(nameof(record));
+            _medicalRecord = record;
+            _medicalRecord.Diagnoses.Add(this);
+
             Description = description;
             Date = date;
             Extent.Add(this);

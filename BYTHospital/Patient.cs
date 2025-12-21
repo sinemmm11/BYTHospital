@@ -1,43 +1,39 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace HospitalSystem
 {
     public class Patient : Person
     {
         public static List<Patient> Extent { get; private set; } = new();
+        private static int _totalRegisteredPatients = 0;
+        public static int TotalRegisteredPatients => _totalRegisteredPatients;
 
-        
-        public Doctor ResponsibleDoctor { get; set; } = new();
-
-        public void AddResponsibleDoctor(Doctor doctor)
+        private Doctor? _responsibleDoctor;
+        public Doctor ResponsibleDoctor
         {
-            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            if (ResponsibleDoctor==doctor) return;
+            get => _responsibleDoctor ?? throw new InvalidOperationException("Patient must have a responsible doctor.");
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(value), "Responsible doctor cannot be null.");
+                if (_responsibleDoctor == value) return;
 
-            ResponsibleDoctor = doctor;
-            doctor.InternalAddResponsiblePatient(this); 
+                _responsibleDoctor?.InternalRemoveResponsiblePatient(this);
+                _responsibleDoctor = value;
+                _responsibleDoctor.InternalAddResponsiblePatient(this);
+            }
         }
 
         public void RemoveResponsibleDoctor()
         {
-            ResponsibleDoctor = null;
-                
-            ResponsibleDoctor.InternalRemoveResponsiblePatient(this);
-        }
-
-       
-        internal void InternalAddResponsibleDoctor(Doctor doctor)
-        {
-            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            if (ResponsibleDoctor!=doctor)
-                ResponsibleDoctor = doctor;
-        }
-
-        internal void InternalRemoveResponsibleDoctor()
-        {
-            ResponsibleDoctor = null;
+            if (_responsibleDoctor != null)
+            {
+                var oldDoc = _responsibleDoctor;
+                _responsibleDoctor = null;
+                oldDoc.InternalRemoveResponsiblePatient(this);
+            }
         }
 
        
@@ -56,19 +52,24 @@ namespace HospitalSystem
             Appointments.Remove(a);
         }
 
-       
-        private int _age;
-        public int Age
+        public List<Surgery> Surgeries { get; } = new();
+        public List<RoomAssignment> RoomAssignments { get; } = new();
+
+        internal void AddSurgery(Surgery s)
         {
-            get => _age;
-            set
-            {
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException(nameof(Age), "Age cannot be negative.");
-                _age = value;
-            }
+            if (s == null) throw new ArgumentNullException(nameof(s));
+            if (!Surgeries.Contains(s)) Surgeries.Add(s);
+        }
+        
+        internal void AddRoomAssignment(RoomAssignment ra)
+        {
+            if (ra == null) throw new ArgumentNullException(nameof(ra));
+            if (!RoomAssignments.Contains(ra)) RoomAssignments.Add(ra);
         }
 
+        public bool HasActiveSurgery() => Surgeries.Any(s => s.EndTime == null);
+        public bool HasActiveRoomAssignment() => RoomAssignments.Any(ra => ra.DischargeDate == null);
+        
         private DateTime _birthDate = DateTime.Today.AddYears(-18);
         public DateTime BirthDate
         {
@@ -81,7 +82,7 @@ namespace HospitalSystem
             }
         }
 
-        public int CalculatedAge
+        public int Age
         {
             get
             {
@@ -110,15 +111,17 @@ namespace HospitalSystem
                 Allergies.Add(allergy);
         }
 
+        public MedicalRecord MedicalRecord { get; private set; }
+
         public Patient()
         {
-            
             Name = "Unknown";
             Surname = "Unknown";
             NationalID = "00000000000";
             Gender = "Unknown";
             PhoneNumber = "000000000";
-
+            MedicalRecord = new MedicalRecord(this); 
+            _totalRegisteredPatients++;
             Extent.Add(this);
         }
 

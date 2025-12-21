@@ -9,8 +9,20 @@ namespace HospitalSystem
     {
         public static List<Consultation> Extent = new List<Consultation>();
 
-        public Patient Patient { get; }
-        public Doctor Doctor { get; }
+        private MedicalRecord _medicalRecord = default!;
+        public MedicalRecord MedicalRecord
+        {
+            get => _medicalRecord;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(MedicalRecord));
+                if (_medicalRecord == value) return;
+
+                _medicalRecord?.Consultations.Remove(this);
+                _medicalRecord = value;
+                _medicalRecord.Consultations.Add(this);
+            }
+        }
 
         private DateTime _date;
         public DateTime Date
@@ -49,10 +61,50 @@ namespace HospitalSystem
             }
         }
 
-        public Consultation(Patient patient, Doctor doctor, DateTime date, string notes)
+        private Appointment? _sourceAppointment;
+        public Appointment? SourceAppointment
         {
-            Patient = patient ?? throw new ArgumentNullException(nameof(patient));
-            Doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
+            get => _sourceAppointment;
+            set
+            {
+                if (_sourceAppointment == value) return;
+                var oldAppt = _sourceAppointment;
+                _sourceAppointment = value;
+                if (oldAppt != null) oldAppt.ResultingConsultation = null;
+                if (_sourceAppointment != null) _sourceAppointment.ResultingConsultation = this;
+            }
+        }
+
+        public List<Diagnosis> Diagnoses { get; } = new();
+        public List<Prescription> Prescriptions { get; } = new();
+
+        internal void InternalAddDiagnosis(Diagnosis d)
+        {
+            if (!Diagnoses.Contains(d)) Diagnoses.Add(d);
+        }
+
+        internal void InternalRemoveDiagnosis(Diagnosis d)
+        {
+            Diagnoses.Remove(d);
+        }
+
+        internal void InternalAddPrescription(Prescription p)
+        {
+            if (!Prescriptions.Contains(p)) Prescriptions.Add(p);
+        }
+
+        internal void InternalRemovePrescription(Prescription p)
+        {
+            Prescriptions.Remove(p);
+        }
+
+        public Consultation(MedicalRecord record, DateTime date, string notes)
+        {
+            if (record == null) throw new ArgumentNullException(nameof(record));
+            _medicalRecord = record;
+            
+            _medicalRecord.Consultations.Add(this);
+
             Date = date;
             Notes = notes;
             Recommendations = "General";
