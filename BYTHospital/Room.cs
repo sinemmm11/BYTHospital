@@ -9,8 +9,19 @@ namespace HospitalSystem
     {
         public static List<Room> Extent = new();
 
-        
-        public Department? Department { get; internal set; }
+        private Department? _department;
+        public Department? Department
+        {
+            get => _department;
+            set
+            {
+                if (_department == value) return;
+
+                _department?.RemoveRoom(this);
+                _department = value;
+                _department?.AddRoom(this);
+            }
+        }
 
         private string _roomNumber = "000";
         public string RoomNumber
@@ -48,7 +59,13 @@ namespace HospitalSystem
             }
         }
 
-        public bool IsAvailable { get; set; }
+        private bool _isOutOfService = false;
+        public bool IsAvailable => !IsFull && !_isOutOfService;
+
+        public void SetOutOfService(bool status)
+        {
+            _isOutOfService = status;
+        }
 
         public List<RoomAssignment> Assignments { get; } = new();
 
@@ -58,7 +75,6 @@ namespace HospitalSystem
         public Room()
         {
             Capacity = 1;
-            IsAvailable = true;
             RoomNumber = "000";
             Type = "Standard";
             Extent.Add(this);

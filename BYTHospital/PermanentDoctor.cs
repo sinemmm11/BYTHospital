@@ -7,6 +7,8 @@ namespace HospitalSystem
         public DateTime EmploymentStartDate { get; private set; }
         public DateTime? EmploymentEndDate { get; private set; }
 
+        public Department? HeadedDepartment { get; internal set; }
+
         public void SetEmploymentPeriod(DateTime startDate, DateTime? endDate)
         {
             if (endDate.HasValue && endDate.Value < startDate)

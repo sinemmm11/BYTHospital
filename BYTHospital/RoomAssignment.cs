@@ -9,8 +9,44 @@ namespace HospitalSystem
     {
         public static List<RoomAssignment> Extent = new();
 
-        public Patient Patient { get; }
-        public Room Room { get; }
+        private Patient _patient = default!;
+        public Patient Patient
+        {
+            get => _patient;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Patient));
+                if (_patient == value) return;
+
+                if (value.HasActiveSurgery())
+                {
+                    throw new InvalidOperationException("Cannot admit a patient who is currently in surgery.");
+                }
+                if (value.HasActiveRoomAssignment())
+                {
+                    throw new InvalidOperationException("Patient is already admitted to a room.");
+                }
+
+                _patient?.RoomAssignments.Remove(this);
+                _patient = value;
+                _patient.AddRoomAssignment(this);
+            }
+        }
+
+        private Room _room = default!;
+        public Room Room
+        {
+            get => _room;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Room));
+                if (_room == value) return;
+
+                _room?.Assignments.Remove(this);
+                _room = value;
+                _room.AddAssignment(this);
+            }
+        }
 
         private DateTime _admissionDate;
         public DateTime AdmissionDate
@@ -41,10 +77,10 @@ namespace HospitalSystem
         {
             Patient = patient ?? throw new ArgumentNullException(nameof(patient));
             Room = room ?? throw new ArgumentNullException(nameof(room));
+            
             AdmissionDate = admissionDate;
 
             Extent.Add(this);
-            room.AddAssignment(this);
         }
 
         public void Discharge(DateTime dischargeDate)

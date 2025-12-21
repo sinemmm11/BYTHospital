@@ -9,18 +9,34 @@ namespace HospitalSystem
     {
         public static List<Appointment> Extent = new();
 
-        private Patient _patient;
+        private Patient _patient = default!;
         public Patient Patient
         {
             get => _patient;
-            private set => _patient = value ?? throw new ArgumentNullException(nameof(Patient));
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Patient));
+                if (_patient == value) return;
+
+                _patient?.RemoveAppointment(this);
+                _patient = value;
+                _patient.AddAppointment(this);
+            }
         }
 
-        private Doctor _doctor;
+        private Doctor _doctor = default!;
         public Doctor Doctor
         {
             get => _doctor;
-            private set => _doctor = value ?? throw new ArgumentNullException(nameof(Doctor));
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Doctor));
+                if (_doctor == value) return;
+
+                _doctor?.RemoveConductedAppointment(this);
+                _doctor = value;
+                _doctor.AddConductedAppointment(this);
+            }
         }
 
         private DateTime _dateTime;
@@ -47,43 +63,116 @@ namespace HospitalSystem
             }
         }
 
-       
-        public Appointment(Patient patient, Doctor doctor)
+        private Diagnosis? _diagnosis;
+        public Diagnosis? Diagnosis
         {
-            Patient = patient ?? throw new ArgumentNullException(nameof(patient));
-            Doctor = doctor ?? throw new ArgumentNullException(nameof(doctor));
+            get => _diagnosis;
+            set
+            {
+                if (_diagnosis == value) return;
+                var oldDiag = _diagnosis;
+                _diagnosis = value;
+                if (oldDiag != null) oldDiag.SourceAppointment = null;
+                if (_diagnosis != null) _diagnosis.SourceAppointment = this;
+            }
+        }
 
-            DateTime = System.DateTime.Now.AddHours(1);
-            Status = "Scheduled";
+        private Prescription? _prescription;
+        public Prescription? Prescription
+        {
+            get => _prescription;
+            set
+            {
+                if (_prescription == value) return;
+                var oldPresc = _prescription;
+                _prescription = value;
+                if (oldPresc != null) oldPresc.SourceAppointment = null;
+                if (_prescription != null) _prescription.SourceAppointment = this;
+            }
+        }
 
+        private Consultation? _resultingConsultation;
+        public Consultation? ResultingConsultation
+        {
+            get => _resultingConsultation;
+            set
+            {
+                if (_resultingConsultation == value) return;
+                var oldConsult = _resultingConsultation;
+                _resultingConsultation = value;
+                if (oldConsult != null) oldConsult.SourceAppointment = null;
+                if (_resultingConsultation != null) _resultingConsultation.SourceAppointment = this;
+            }
+        }
+
+        public List<Nurse> AssistingNurses { get; } = new();
+
+        public void AddAssistingNurse(Nurse nurse)
+        {
+            if (nurse == null) throw new ArgumentNullException(nameof(nurse));
+            if (!AssistingNurses.Contains(nurse))
+            {
+                AssistingNurses.Add(nurse);
+                nurse.AddAssistedAppointment(this);
+            }
+        }
+
+        public void RemoveAssistingNurse(Nurse nurse)
+        {
+            if (nurse == null) throw new ArgumentNullException(nameof(nurse));
+            if (AssistingNurses.Contains(nurse))
+            {
+                AssistingNurses.Remove(nurse);
+                nurse.RemoveAssistedAppointment(this);
+            }
+        }
+
+        public void CompleteAppointment(string consultationNotes, string? diagnosisDesc = null, string? medication = null, string? dosage = null)
+        {
+            Status = "Completed";
             
-            patient.AddAppointment(this);
-            doctor.AddConductedAppointment(this);
+            // Create consultation (if appointment is conducted)
+            var consult = new Consultation(this.Patient.MedicalRecord, DateTime.Now, consultationNotes);
+            ResultingConsultation = consult;
+
+            // Optional diagnosis
+            if (!string.IsNullOrEmpty(diagnosisDesc))
+            {
+                var diag = new Diagnosis(this.Patient.MedicalRecord, diagnosisDesc, DateTime.Now);
+                diag.Consultation = consult; // Link to Consultation
+                Diagnosis = diag;
+            }
+
+            // Optional prescription
+            if (!string.IsNullOrEmpty(medication) && !string.IsNullOrEmpty(dosage))
+            {
+                var presc = new Prescription(this.Patient.MedicalRecord);
+                presc.Medication = medication;
+                presc.Dosage = dosage;
+                presc.Consultation = consult; // Link to Consultation
+                Prescription = presc;
+            }
+        }
+
+       
+        public Appointment(Patient patient, Doctor doctor, DateTime dateTime)
+        {
+            if (patient == null) throw new ArgumentNullException(nameof(patient));
+            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+
+            _dateTime = dateTime;
+            _patient = patient;
+            _doctor = doctor;
+            
+            _patient.AddAppointment(this);
+            _doctor.AddConductedAppointment(this);
+
+            Status = "Scheduled";
 
             Extent.Add(this);
         }
 
        
-        public void ChangeDoctor(Doctor newDoctor)
-        {
-            if (newDoctor == null) throw new ArgumentNullException(nameof(newDoctor));
-            if (newDoctor == Doctor) return;
-
-            Doctor.RemoveConductedAppointment(this);
-            Doctor = newDoctor;
-            Doctor.AddConductedAppointment(this);
-        }
-
-        public void ChangePatient(Patient newPatient)
-        {
-            if (newPatient == null) throw new ArgumentNullException(nameof(newPatient));
-            if (newPatient == Patient) return;
-
-            Patient.RemoveAppointment(this);
-            Patient = newPatient;
-            Patient.AddAppointment(this);
-        }
-
         public static void SaveExtent(string file)
         {
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));

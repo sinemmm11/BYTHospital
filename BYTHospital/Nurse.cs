@@ -34,19 +34,22 @@ namespace HospitalSystem
         }
 
         
-        public List<Appointment> AssistedAppointments { get; } = new();
+        public Appointment? AssistedAppointment { get; internal set; }
 
         internal void AddAssistedAppointment(Appointment a)
         {
             if (a == null) throw new ArgumentNullException(nameof(a));
-            if (!AssistedAppointments.Contains(a))
-                AssistedAppointments.Add(a);
+            if (AssistedAppointment != null && AssistedAppointment != a)
+            {
+                throw new InvalidOperationException("This nurse is already assisting another appointment.");
+            }
+            AssistedAppointment = a;
         }
 
         internal void RemoveAssistedAppointment(Appointment a)
         {
-            if (a == null) throw new ArgumentNullException(nameof(a));
-            AssistedAppointments.Remove(a);
+            if (AssistedAppointment == a)
+                AssistedAppointment = null;
         }
 
         public Nurse()

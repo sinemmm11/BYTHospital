@@ -9,8 +9,35 @@ namespace HospitalSystem
     {
         public static List<SurgeryStaffParticipation> Extent = new();
 
-        public Surgery Surgery { get; private set; } = null!;
-        public Employee StaffMember { get; private set; } = null!;
+        private Surgery _surgery = default!;
+        public Surgery Surgery
+        {
+            get => _surgery;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Surgery));
+                if (_surgery == value) return;
+
+                _surgery?.Staff.Remove(this);
+                _surgery = value;
+                _surgery.AddStaffParticipation(this);
+            }
+        }
+
+        private Employee _staffMember = default!;
+        public Employee StaffMember
+        {
+            get => _staffMember;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(StaffMember));
+                if (_staffMember == value) return;
+
+                _staffMember?.InternalRemoveSurgeryParticipation(this);
+                _staffMember = value;
+                _staffMember.InternalAddSurgeryParticipation(this);
+            }
+        }
 
         private string _role = "Unknown";
         public string Role
@@ -30,15 +57,13 @@ namespace HospitalSystem
             Extent.Add(this);
         }
 
-        public SurgeryStaffParticipation(Surgery surgery, Employee staff, string role) : this()
+        public SurgeryStaffParticipation(Surgery surgery, Employee staff, string role)
         {
             Surgery = surgery ?? throw new ArgumentNullException(nameof(surgery));
             StaffMember = staff ?? throw new ArgumentNullException(nameof(staff));
             Role = role;
 
-            
-            surgery.AddStaffParticipation(this);
-            staff.InternalAddSurgeryParticipation(this);
+            Extent.Add(this);
         }
 
         public static void SaveExtent(string file) =>

@@ -47,6 +47,8 @@ namespace HospitalSystem
         
         public string? Apartment { get; set; } = null;
 
+        public Person? Person { get; internal set; }
+
         public Address()
         {
             Country = "Unknown";

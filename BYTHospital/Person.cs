@@ -76,7 +76,25 @@ namespace HospitalSystem
             }
         }
 
-       
-        public Address Address { get; set; } = new Address();
+        private Address _address = new Address();
+        public Address Address
+        {
+            get => _address;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Address), "A person must have an address.");
+                if (_address == value) return;
+
+                if (_address != null) _address.Person = null;
+
+                _address = value;
+                _address.Person = this;
+            }
+        }
+
+        protected Person()
+        {
+            _address.Person = this;
+        }
     }
 }

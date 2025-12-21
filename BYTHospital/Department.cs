@@ -35,10 +35,42 @@ namespace HospitalSystem
             }
         }
 
-       
-        public int TotalEmployees => Employees.Count;
+        private int _totalEmployees = 0;
+        public int TotalEmployees => _totalEmployees;
+
+        public PermanentDoctor? Head { get; private set; }
+
+        public void SetHead(PermanentDoctor doctor)
+        {
+            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (!Employees.Contains(doctor))
+            {
+                throw new ArgumentException("The department head must be an employee of the department.");
+            }
+            
+            if (doctor.HeadedDepartment != null && doctor.HeadedDepartment != this)
+            {
+                throw new InvalidOperationException("This doctor is already the head of another department.");
+            }
+
+            if (Head == doctor) return;
+            if (Head != null) Head.HeadedDepartment = null;
+
+            Head = doctor;
+
+            Head.HeadedDepartment = this;
+        }
 
         public List<Employee> Employees { get; } = new();
+        private Dictionary<string, Employee> _employeesById = new();
+
+        public Employee? GetEmployeeById(string employeeId)
+        {
+            if (string.IsNullOrWhiteSpace(employeeId)) return null;
+            _employeesById.TryGetValue(employeeId, out var emp);
+            return emp;
+        }
+
         public List<Doctor> Doctors { get; } = new();
         public List<Nurse> Nurses { get; } = new();
         public List<Room> Rooms { get; } = new();
@@ -56,10 +88,33 @@ namespace HospitalSystem
         public void AddEmployee(Employee emp)
         {
             if (emp == null) throw new ArgumentNullException(nameof(emp));
+            
+            if (emp.Department != null && emp.Department != this)
+            {
+                throw new InvalidOperationException("This employee is already assigned to another department.");
+            }
+
             if (!Employees.Contains(emp))
             {
                 Employees.Add(emp);
-                emp.Department = this;
+                _employeesById[emp.NationalID] = emp; // Update Qualifier
+                _totalEmployees++; // Update stored attribute
+                emp.Department = this; // Reverse connection
+            }
+        }
+
+        public void RemoveEmployee(Employee emp)
+        {
+            if (emp == null) throw new ArgumentNullException(nameof(emp));
+            if (Employees.Contains(emp))
+            {
+                Employees.Remove(emp);
+                _employeesById.Remove(emp.NationalID); // Update Qualifier
+                _totalEmployees--; // Update stored attribute
+                emp.Department = null; // Break reverse connection
+                
+                if (emp is Doctor doc) Doctors.Remove(doc);
+                if (emp is Nurse nurse) Nurses.Remove(nurse);
             }
         }
 
@@ -84,6 +139,17 @@ namespace HospitalSystem
             {
                 Rooms.Add(room);
                 room.Department = this;
+            }
+        }
+
+        public void RemoveRoom(Room room)
+        {
+            if (room == null) throw new ArgumentNullException(nameof(room));
+            if (Rooms.Contains(room))
+            {
+                Rooms.Remove(room);
+                room.Department = null;
+                Room.Extent.Remove(room);
             }
         }
 

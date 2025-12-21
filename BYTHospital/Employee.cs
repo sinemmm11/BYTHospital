@@ -5,8 +5,24 @@ namespace HospitalSystem
 {
     public abstract class Employee : Person
     {
-       
-        public Department? Department { get; internal set; }
+        private Department? _department;
+        public Department? Department
+        {
+            get => _department;
+            set
+            {
+                if (_department == value) return;
+
+                if (value != null && _department != null)
+                {
+                    throw new InvalidOperationException("This employee is already assigned to a department. Remove them first.");
+                }
+
+                _department?.RemoveEmployee(this);
+                _department = value;
+                _department?.AddEmployee(this);
+            }
+        }
 
         private decimal _salary;
         public decimal Salary

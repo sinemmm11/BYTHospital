@@ -9,8 +9,38 @@ namespace HospitalSystem
     {
         public static List<Surgery> Extent = new();
 
-        public Patient Patient { get; }
-        public SurgeonDoctor Surgeon { get; }
+        private Patient _patient = default!;
+        public Patient Patient
+        {
+            get => _patient;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Patient));
+                if (_patient == value) return;
+
+                if (value.HasActiveRoomAssignment())
+                {
+                    throw new InvalidOperationException("Cannot schedule a surgery for a patient who is currently admitted to a room.");
+                }
+
+                _patient?.Surgeries.Remove(this);
+                _patient = value;
+                _patient.AddSurgery(this);
+            }
+        }
+
+        private ISurgeon _surgeon = default!;
+        public ISurgeon Surgeon
+        {
+            get => _surgeon;
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Surgeon));
+                if (_surgeon == value) return;
+
+                _surgeon = value;
+            }
+        }
 
        
         public List<SurgeryStaffParticipation> Staff { get; } = new();
@@ -39,27 +69,20 @@ namespace HospitalSystem
             }
         }
 
-        public DateTime? EndTime { get; private set; }
+        public TimeSpan Duration { get; set; }
 
-        public TimeSpan? Duration =>
-            EndTime.HasValue ? EndTime.Value - StartTime : (TimeSpan?)null;
+        public DateTime? EndTime => Duration == TimeSpan.Zero ? (DateTime?)null : StartTime.Add(Duration);
 
-        public Surgery(Patient patient, SurgeonDoctor surgeon, DateTime startTime)
+        public Surgery(Patient patient, ISurgeon surgeon, DateTime startTime)
         {
             Patient = patient ?? throw new ArgumentNullException(nameof(patient));
             Surgeon = surgeon ?? throw new ArgumentNullException(nameof(surgeon));
+            
             StartTime = startTime;
             Type = "General";
+            Duration = TimeSpan.Zero;
 
             Extent.Add(this);
-        }
-
-        public void Finish(DateTime endTime)
-        {
-            if (endTime < StartTime)
-                throw new ArgumentException("End time cannot be before start time");
-
-            EndTime = endTime;
         }
 
         internal void AddStaffParticipation(SurgeryStaffParticipation p)
