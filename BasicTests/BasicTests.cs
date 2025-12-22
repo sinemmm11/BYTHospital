@@ -6,10 +6,10 @@ using System.Linq;
 
 namespace HospitalSystem.Tests
 {
-    // This class handles the basic validation and property logic for individual entities.
+   
     public class BasicTests
     {
-        // Cleaning up state before each test to ensure a fresh start.
+       
         [SetUp]
         public void CommonSetup()
         {
@@ -26,9 +26,7 @@ namespace HospitalSystem.Tests
             SurgeryStaffParticipation.Extent.Clear();
         }
 
-        // --- PERSON & PATIENT VALIDATION ---
-
-        // Checking that basic identity fields can't be empty.
+       
         [Test]
         public void Person_NameCannotBeEmpty()
         {
@@ -71,7 +69,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => p.Name = "");
         }
 
-        // Birth dates should obviously not be in the future.
+        
         [Test]
         public void Patient_BirthDateCannotBeInFuture()
         {
@@ -82,7 +80,7 @@ namespace HospitalSystem.Tests
             });
         }
 
-        // Middle name is optional but shouldn't just be whitespace.
+       
         [Test]
         public void Patient_MiddleNameCanBeNull()
         {
@@ -98,7 +96,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => p.SetMiddleName("   "));
         }
 
-        // Verifying that the allergy list grows and blocks duplicates.
+       
         [Test]
         public void Patient_AddAllergy_AddsToList()
         {
@@ -126,7 +124,7 @@ namespace HospitalSystem.Tests
             Assert.That(p.Allergies.Count, Is.EqualTo(before));
         }
 
-        // Making sure the Age property correctly reflects the birthdate.
+        
         [Test]
         public void Patient_Age_IsCorrect()
         {
@@ -138,7 +136,7 @@ namespace HospitalSystem.Tests
             Assert.That(p.Age, Is.EqualTo(expected));
         }
 
-        // --- DOCTOR & EMPLOYEE VALIDATION ---
+        
 
         [Test]
         public void Employee_SalaryCannotBeNegative()
@@ -175,7 +173,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => sd.SurgeonSpeciality = "");
         }
 
-        // Ensuring contract/employment ranges make sense.
+       
         [Test]
         public void ContractorDoctor_SetContractPeriod_ThrowsIfEndDateIsBeforeStartDate()
         {
@@ -194,7 +192,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => doc.SetEmploymentPeriod(startDate, endDate));
         }
 
-        // Testing the reflexive supervision link between doctors.
+        
         [Test]
         public void Doctor_Supervision_SetsBidirectionalRelation()
         {
@@ -222,7 +220,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<InvalidOperationException>(() => supervisor2.AddSupervisedDoctor(supervised));
         }
 
-        // --- NURSE VALIDATION ---
+      
 
         [Test]
         public void Nurse_RegistrationNumberCannotBeEmpty()
@@ -238,7 +236,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => n.ShiftDetails = "");
         }
 
-        // --- DEPARTMENT VALIDATION ---
+       
 
         [Test]
         public void Department_NameCannotBeEmpty()
@@ -254,7 +252,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => d.Location = "");
         }
 
-        // Making sure employees get linked to the department on both ends.
+       
         [Test]
         public void Department_AddDoctor_SetsBidirectionalRelation()
         {
@@ -275,7 +273,7 @@ namespace HospitalSystem.Tests
             Assert.That(nurse.Department, Is.EqualTo(dep));
         }
 
-        // Checking the department head role assignment.
+       
         [Test]
         public void Department_SetHead_SetsCorrectly()
         {
@@ -294,7 +292,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => dep.SetHead(head));
         }
 
-        // --- APPOINTMENT VALIDATION ---
+       
 
         [Test]
         public void Appointment_CannotBeInPast()
@@ -328,7 +326,7 @@ namespace HospitalSystem.Tests
             Assert.That(a.Doctor, Is.EqualTo(d));
         }
 
-        // Double booking a doctor is a big no-no.
+       
         [Test]
         public void Doctor_ThrowsOnDuplicateAppointment()
         {
@@ -344,7 +342,7 @@ namespace HospitalSystem.Tests
             });
         }
 
-        // Checking that appointments come out sorted by date.
+        
         [Test]
         public void Doctor_GetAppointmentsChronologically_ReturnsSorted()
         {
@@ -372,7 +370,7 @@ namespace HospitalSystem.Tests
             Assert.That(appointment.Prescription, Is.EqualTo(prescription));
         }
 
-        // --- ROOM & ASSIGNMENT VALIDATION ---
+       
 
         [Test]
         public void Room_CapacityMustBeGreaterThanZero()
@@ -498,7 +496,7 @@ namespace HospitalSystem.Tests
                 new RoomAssignment(new Patient(), null!, DateTime.Now));
         }
 
-        // Multiplicity XOR constraint: A patient can't be in surgery and in a room at once.
+       
         [Test]
         public void Patient_CannotBeAdmittedDuringActiveSurgery()
         {
@@ -541,7 +539,7 @@ namespace HospitalSystem.Tests
             });
         }
 
-        // --- RECORD TYPE VALIDATION ---
+       
 
         [Test]
         public void Prescription_MedicationCannotBeEmpty()
@@ -665,7 +663,7 @@ namespace HospitalSystem.Tests
                 new Consultation(null!, DateTime.Now, "notes"));
         }
 
-        // --- SURGERY VALIDATION ---
+      
 
         [Test]
         public void Surgery_TypeCannotBeEmpty()
@@ -721,9 +719,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => ssp.Role = "");
         }
 
-        // --- EXTENTS ---
-
-        // Checking that static extents correctly track new instances.
+       
         [Test]
         public void Patient_ExtentIncreases()
         {
@@ -832,7 +828,7 @@ namespace HospitalSystem.Tests
             SurgeryStaffParticipation.Extent.Remove(ssp);
         }
 
-        // --- PERSISTENCE ---
+       
 
         [Test]
         public void Patient_SaveAndLoadExtent_PreservesSavedCount()
