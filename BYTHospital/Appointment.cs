@@ -108,7 +108,7 @@ namespace HospitalSystem
             }
         }
 
-        // Assisting nurses => Person but must be Nurse
+       
         [JsonIgnore]
         public List<Person> AssistingNurses { get; } = new();
 
