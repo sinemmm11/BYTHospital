@@ -40,8 +40,7 @@ namespace HospitalSystem
         public int TotalEmployees => _totalEmployees;
 
         [JsonIgnore]
-        public Person? Head { get; private set; } // must be Permanent Doctor
-
+        public Person? Head { get; private set; } 
         public void SetHead(Person doctor)
         {
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
