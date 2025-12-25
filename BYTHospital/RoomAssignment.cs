@@ -22,17 +22,17 @@ namespace HospitalSystem
 
                 if (_patient == value) return;
 
-                // Business rules (senin eski kuralın korunuyor)
+                
                 if (value.HasActiveSurgery())
                     throw new InvalidOperationException("Cannot admit a patient who is currently in surgery.");
 
                 if (value.HasActiveRoomAssignment())
                     throw new InvalidOperationException("Patient is already admitted to a room.");
 
-                // break old link
+               
                 _patient?.RoomAssignments.Remove(this);
 
-                // set new + reverse link
+               
                 _patient = value;
                 _patient.InternalAddRoomAssignment(this);
             }
@@ -47,10 +47,10 @@ namespace HospitalSystem
                 if (value == null) throw new ArgumentNullException(nameof(Room));
                 if (_room == value) return;
 
-                // break old
+               
                 _room?.Assignments.Remove(this);
 
-                // set new + reverse
+               
                 _room = value;
                 _room.AddAssignment(this);
             }
@@ -79,8 +79,7 @@ namespace HospitalSystem
             }
         }
 
-        // JSON serialize ederken Department<->Room gibi döngüler olmasın diye istersen açık bırakabilirsin.
-        // Şimdilik bir şey yapmıyorum; gerekirse [JsonIgnore] ekleriz.
+     
 
         public RoomAssignment(Person patient, Room room, DateTime admissionDate)
         {
