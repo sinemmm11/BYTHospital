@@ -7,7 +7,7 @@ namespace HospitalSystem
 {
     public class Person
     {
-        // -------- Core (Person) --------
+     
         private string _name = "Unknown";
         public string Name
         {
@@ -95,12 +95,12 @@ namespace HospitalSystem
             }
         }
 
-        // -------- Flatten flags (overlapping Person->{Patient,Employee}) --------
+       
         public bool IsPatient { get; private set; }
         public bool IsEmployee { get; private set; }
 
-        // -------- Employee fields --------
-        [JsonIgnore] // JSON cycle risk
+       
+        [JsonIgnore] 
         public Department? Department { get; internal set; }
 
         private decimal _salary;
@@ -115,10 +115,10 @@ namespace HospitalSystem
             }
         }
 
-        // Employee -> (disjoint, complete) Doctor/Nurse
+        
         public EmployeeType EmployeeType { get; private set; } = EmployeeType.None;
 
-        // -------- Nurse fields --------
+       
         private string _registrationNumber = "00000";
         public string RegistrationNumber
         {
@@ -145,7 +145,7 @@ namespace HospitalSystem
             }
         }
 
-        // -------- Doctor fields --------
+        
         private string _specialization = "General";
         public string Specialization
         {
@@ -172,7 +172,7 @@ namespace HospitalSystem
             }
         }
 
-        // Doctor employmentType -> (disjoint, complete) Permanent/Contractor
+        
         public EmploymentType EmploymentType { get; private set; } = EmploymentType.None;
 
         public DateTime? EmploymentStartDate { get; private set; }
@@ -181,7 +181,7 @@ namespace HospitalSystem
         public DateTime? ContractStartDate { get; private set; }
         public DateTime? ContractEndDate { get; private set; }
 
-        // Doctor role -> (overlapping, complete) Consultant/Surgeon
+       
         public DoctorRole DoctorRoles { get; private set; } = DoctorRole.None;
 
         private string _consultingHours = "N/A";
@@ -210,7 +210,7 @@ namespace HospitalSystem
             }
         }
 
-        // -------- Patient fields --------
+        
         public MedicalRecord? MedicalRecord { get; private set; }
 
         public int Age
@@ -225,8 +225,7 @@ namespace HospitalSystem
         }
 
         [JsonIgnore]
-        public Person? ResponsibleDoctor { get; private set; } // must be Doctor
-
+        public Person? ResponsibleDoctor { get; private set; } 
         [JsonIgnore]
         public List<Appointment> Appointments { get; } = new();
 
@@ -236,21 +235,21 @@ namespace HospitalSystem
         [JsonIgnore]
         public List<RoomAssignment> RoomAssignments { get; } = new();
 
-        // -------- Doctor supervision / responsibility --------
+        
         [JsonIgnore]
-        public Person? SupervisingDoctor { get; private set; } // must be Doctor
+        public Person? SupervisingDoctor { get; private set; } 
 
         [JsonIgnore]
-        public List<Person> SupervisedDoctors { get; } = new(); // doctors
+        public List<Person> SupervisedDoctors { get; } = new(); 
 
         [JsonIgnore]
-        public List<Person> ResponsibleForPatients { get; } = new(); // patients
+        public List<Person> ResponsibleForPatients { get; } = new(); 
 
-        // Doctor appointment qualifier (dateTime -> appointment)
+       
         [JsonIgnore]
         public Dictionary<DateTime, Appointment> ConductedAppointments { get; } = new();
 
-        // -------- Helpers --------
+       
         [JsonIgnore] public bool IsDoctor => IsEmployee && EmployeeType == EmployeeType.Doctor;
         [JsonIgnore] public bool IsNurse => IsEmployee && EmployeeType == EmployeeType.Nurse;
         [JsonIgnore] public bool IsConsultant => IsDoctor && DoctorRoles.HasFlag(DoctorRole.Consultant);
@@ -261,7 +260,7 @@ namespace HospitalSystem
             _address.Person = this;
         }
 
-        // -------- Mode switching (Flattening discriminators) --------
+      
 
         public void MakePatient(Person doctorResponsible)
         {
@@ -283,7 +282,7 @@ namespace HospitalSystem
             EmployeeType = type;
             Salary = salary;
 
-            dept.AddEmployee(this); // will set Department back-reference
+            dept.AddEmployee(this);
         }
 
         public void SetDoctorEmployment(EmploymentType type, DateTime start, DateTime? end = null)
@@ -346,7 +345,7 @@ namespace HospitalSystem
                 supervisorDoctor.SupervisedDoctors.Add(this);
         }
 
-        // Patient state checks (your old logic preserved)
+       
         public bool HasActiveSurgery() => Surgeries.Any(s => s.EndTime == null);
         public bool HasActiveRoomAssignment() => RoomAssignments.Any(ra => ra.DischargeDate == null);
 
