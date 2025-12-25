@@ -5,7 +5,7 @@ namespace HospitalSystem.Tests
 {
     public class BasicTests
     {
-        // ---------------- Helpers ----------------
+        
         private static Department CreateDepartment(string name = "Cardiology")
         {
             return new Department(name) { Location = "Floor 1" };
@@ -78,7 +78,7 @@ namespace HospitalSystem.Tests
             return p;
         }
 
-        // ---------------- Setup ----------------
+       
         [SetUp]
         public void CommonSetup()
         {
@@ -93,7 +93,7 @@ namespace HospitalSystem.Tests
             Consultation.Extent.Clear();
         }
 
-        // ---------------- Person validation ----------------
+     
 
         [Test]
         public void Person_NameCannotBeEmpty()
@@ -137,7 +137,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => p.DateOfBirth = DateTime.Now.AddDays(1));
         }
 
-        // ---------------- Address validation ----------------
+      
 
         [Test]
         public void Address_CityCannotBeEmpty()
@@ -179,7 +179,7 @@ namespace HospitalSystem.Tests
             Assert.That(newAddr.Person, Is.EqualTo(p));
         }
 
-        // ---------------- Department ----------------
+       
 
         [Test]
         public void Department_NameCannotBeEmpty()
@@ -244,7 +244,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => dep.SetHead(contractor));
         }
 
-        // ---------------- Patient / Doctor creation rules ----------------
+      
 
         [Test]
         public void MakePatient_Throws_If_Responsible_IsNotDoctor()
@@ -285,8 +285,7 @@ namespace HospitalSystem.Tests
             Assert.That(doc.ResponsibleForPatients, Does.Contain(patient));
         }
 
-        // ---------------- Appointment ----------------
-
+      
         [Test]
         public void Appointment_CannotBeInPast()
         {
@@ -331,7 +330,7 @@ namespace HospitalSystem.Tests
             Assert.That(appt.AssistingNurses, Does.Contain(nurse));
         }
 
-        // ---------------- Consultation / Diagnosis / Prescription ----------------
+       
 
         [Test]
         public void Consultation_NotesCannotBeEmpty()
@@ -394,8 +393,7 @@ namespace HospitalSystem.Tests
             Assert.Throws<ArgumentException>(() => pr.Dosage = "");
         }
 
-        // ---------------- Room / RoomAssignment ----------------
-
+       
         [Test]
         public void Room_CapacityMustBeGreaterThanZero()
         {
@@ -468,7 +466,7 @@ namespace HospitalSystem.Tests
             });
         }
 
-        // ---------------- Surgery ----------------
+       
 
         [Test]
         public void Surgery_Throws_If_Doctor_HasNoSurgeonRole()
