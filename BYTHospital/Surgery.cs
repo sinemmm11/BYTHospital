@@ -9,40 +9,37 @@ namespace HospitalSystem
     {
         public static List<Surgery> Extent = new();
 
-        private Patient _patient = default!;
-        public Patient Patient
+        private Person _patient = default!;
+        public Person Patient
         {
             get => _patient;
             set
             {
                 if (value == null) throw new ArgumentNullException(nameof(Patient));
+                if (!value.IsPatient) throw new ArgumentException("Surgery patient must be IsPatient=true.");
                 if (_patient == value) return;
 
                 if (value.HasActiveRoomAssignment())
-                {
                     throw new InvalidOperationException("Cannot schedule a surgery for a patient who is currently admitted to a room.");
-                }
 
                 _patient?.Surgeries.Remove(this);
                 _patient = value;
-                _patient.AddSurgery(this);
+                _patient.InternalAddSurgery(this);
             }
         }
 
-        private ISurgeon _surgeon = default!;
-        public ISurgeon Surgeon
+        private Person _surgeon = default!;
+        public Person Surgeon
         {
             get => _surgeon;
             set
             {
                 if (value == null) throw new ArgumentNullException(nameof(Surgeon));
-                if (_surgeon == value) return;
-
+                if (!value.IsSurgeon) throw new ArgumentException("Surgeon must be a Doctor with Surgeon role.");
                 _surgeon = value;
             }
         }
 
-       
         public List<SurgeryStaffParticipation> Staff { get; } = new();
 
         private string _type = "General";
@@ -70,15 +67,14 @@ namespace HospitalSystem
         }
 
         public TimeSpan Duration { get; set; }
-
         public DateTime? EndTime => Duration == TimeSpan.Zero ? (DateTime?)null : StartTime.Add(Duration);
 
-        public Surgery(Patient patient, ISurgeon surgeon, DateTime startTime)
+        public Surgery(Person patient, Person surgeon, DateTime startTime)
         {
             Patient = patient ?? throw new ArgumentNullException(nameof(patient));
             Surgeon = surgeon ?? throw new ArgumentNullException(nameof(surgeon));
-            
             StartTime = startTime;
+
             Type = "General";
             Duration = TimeSpan.Zero;
 

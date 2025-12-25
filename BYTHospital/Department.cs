@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HospitalSystem
 {
@@ -38,98 +39,69 @@ namespace HospitalSystem
         private int _totalEmployees = 0;
         public int TotalEmployees => _totalEmployees;
 
-        public PermanentDoctor? Head { get; private set; }
+        [JsonIgnore]
+        public Person? Head { get; private set; } // must be Permanent Doctor
 
-        public void SetHead(PermanentDoctor doctor)
+        public void SetHead(Person doctor)
         {
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            if (!Employees.Contains(doctor))
-            {
-                throw new ArgumentException("The department head must be an employee of the department.");
-            }
-            
-            if (doctor.HeadedDepartment != null && doctor.HeadedDepartment != this)
-            {
-                throw new InvalidOperationException("This doctor is already the head of another department.");
-            }
+            if (!doctor.IsDoctor) throw new ArgumentException("Head must be a Doctor.");
+            if (doctor.EmploymentType != EmploymentType.Permanent)
+                throw new ArgumentException("Head must be a Permanent doctor.");
 
-            if (Head == doctor) return;
-            if (Head != null) Head.HeadedDepartment = null;
+            if (!Employees.Contains(doctor))
+                throw new ArgumentException("The department head must be an employee of the department.");
 
             Head = doctor;
-
-            Head.HeadedDepartment = this;
         }
 
-        public List<Employee> Employees { get; } = new();
-        private Dictionary<string, Employee> _employeesById = new();
+        public List<Person> Employees { get; } = new();
+        private readonly Dictionary<string, Person> _employeesById = new();
 
-        public Employee? GetEmployeeById(string employeeId)
+        public Person? GetEmployeeById(string employeeId)
         {
             if (string.IsNullOrWhiteSpace(employeeId)) return null;
             _employeesById.TryGetValue(employeeId, out var emp);
             return emp;
         }
 
-        public List<Doctor> Doctors { get; } = new();
-        public List<Nurse> Nurses { get; } = new();
         public List<Room> Rooms { get; } = new();
 
         public Department()
         {
             Id = Guid.NewGuid();
-            Name = "Unknown";
-            Location = "Unknown";
             Extent.Add(this);
         }
 
         public Department(string name) : this() => Name = name;
 
-        public void AddEmployee(Employee emp)
+        public void AddEmployee(Person emp)
         {
             if (emp == null) throw new ArgumentNullException(nameof(emp));
-            
+            if (!emp.IsEmployee)
+                throw new ArgumentException("Only IsEmployee=true persons can be added as employees.");
+
             if (emp.Department != null && emp.Department != this)
-            {
                 throw new InvalidOperationException("This employee is already assigned to another department.");
-            }
 
             if (!Employees.Contains(emp))
             {
                 Employees.Add(emp);
-                _employeesById[emp.NationalID] = emp; // Update Qualifier
-                _totalEmployees++; // Update stored attribute
-                emp.Department = this; // Reverse connection
+                _employeesById[emp.NationalID] = emp;
+                _totalEmployees++;
+                emp.Department = this;
             }
         }
 
-        public void RemoveEmployee(Employee emp)
+        public void RemoveEmployee(Person emp)
         {
             if (emp == null) throw new ArgumentNullException(nameof(emp));
-            if (Employees.Contains(emp))
+            if (Employees.Remove(emp))
             {
-                Employees.Remove(emp);
-                _employeesById.Remove(emp.NationalID); // Update Qualifier
-                _totalEmployees--; // Update stored attribute
-                emp.Department = null; // Break reverse connection
-                
-                if (emp is Doctor doc) Doctors.Remove(doc);
-                if (emp is Nurse nurse) Nurses.Remove(nurse);
+                _employeesById.Remove(emp.NationalID);
+                _totalEmployees--;
+                emp.Department = null;
             }
-        }
-
-        public void AddDoctor(Doctor doctor)
-        {
-            if (doctor == null) throw new ArgumentNullException(nameof(doctor));
-            AddEmployee(doctor);
-            if (!Doctors.Contains(doctor)) Doctors.Add(doctor);
-        }
-
-        public void AddNurse(Nurse nurse)
-        {
-            if (nurse == null) throw new ArgumentNullException(nameof(nurse));
-            AddEmployee(nurse);
-            if (!Nurses.Contains(nurse)) Nurses.Add(nurse);
         }
 
         public void AddRoom(Room room)
@@ -145,9 +117,8 @@ namespace HospitalSystem
         public void RemoveRoom(Room room)
         {
             if (room == null) throw new ArgumentNullException(nameof(room));
-            if (Rooms.Contains(room))
+            if (Rooms.Remove(room))
             {
-                Rooms.Remove(room);
                 room.Department = null;
                 Room.Extent.Remove(room);
             }

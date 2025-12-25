@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HospitalSystem
 {
@@ -9,33 +10,35 @@ namespace HospitalSystem
     {
         public static List<Appointment> Extent = new();
 
-        private Patient _patient = default!;
-        public Patient Patient
+        private Person _patient = default!;
+        public Person Patient
         {
             get => _patient;
             set
             {
                 if (value == null) throw new ArgumentNullException(nameof(Patient));
+                if (!value.IsPatient) throw new ArgumentException("Appointment patient must be IsPatient=true.");
                 if (_patient == value) return;
 
-                _patient?.RemoveAppointment(this);
+                _patient?.InternalRemoveAppointment(this);
                 _patient = value;
-                _patient.AddAppointment(this);
+                _patient.InternalAddAppointment(this);
             }
         }
 
-        private Doctor _doctor = default!;
-        public Doctor Doctor
+        private Person _doctor = default!;
+        public Person Doctor
         {
             get => _doctor;
             set
             {
                 if (value == null) throw new ArgumentNullException(nameof(Doctor));
+                if (!value.IsDoctor) throw new ArgumentException("Appointment doctor must be a Doctor (IsDoctor=true).");
                 if (_doctor == value) return;
 
-                _doctor?.RemoveConductedAppointment(this);
+                _doctor?.InternalRemoveConductedAppointment(this);
                 _doctor = value;
-                _doctor.AddConductedAppointment(this);
+                _doctor.InternalAddConductedAppointment(this);
             }
         }
 
@@ -70,9 +73,9 @@ namespace HospitalSystem
             set
             {
                 if (_diagnosis == value) return;
-                var oldDiag = _diagnosis;
+                var old = _diagnosis;
                 _diagnosis = value;
-                if (oldDiag != null) oldDiag.SourceAppointment = null;
+                if (old != null) old.SourceAppointment = null;
                 if (_diagnosis != null) _diagnosis.SourceAppointment = this;
             }
         }
@@ -84,9 +87,9 @@ namespace HospitalSystem
             set
             {
                 if (_prescription == value) return;
-                var oldPresc = _prescription;
+                var old = _prescription;
                 _prescription = value;
-                if (oldPresc != null) oldPresc.SourceAppointment = null;
+                if (old != null) old.SourceAppointment = null;
                 if (_prescription != null) _prescription.SourceAppointment = this;
             }
         }
@@ -98,96 +101,87 @@ namespace HospitalSystem
             set
             {
                 if (_resultingConsultation == value) return;
-                var oldConsult = _resultingConsultation;
+                var old = _resultingConsultation;
                 _resultingConsultation = value;
-                if (oldConsult != null) oldConsult.SourceAppointment = null;
+                if (old != null) old.SourceAppointment = null;
                 if (_resultingConsultation != null) _resultingConsultation.SourceAppointment = this;
             }
         }
 
-        public List<Nurse> AssistingNurses { get; } = new();
+        // Assisting nurses => Person but must be Nurse
+        [JsonIgnore]
+        public List<Person> AssistingNurses { get; } = new();
 
-        public void AddAssistingNurse(Nurse nurse)
+        public void AddAssistingNurse(Person nurse)
         {
             if (nurse == null) throw new ArgumentNullException(nameof(nurse));
+            if (!nurse.IsNurse) throw new ArgumentException("Assisting staff must be a Nurse.");
+
             if (!AssistingNurses.Contains(nurse))
-            {
                 AssistingNurses.Add(nurse);
-                nurse.AddAssistedAppointment(this);
-            }
         }
 
-        public void RemoveAssistingNurse(Nurse nurse)
+        public void RemoveAssistingNurse(Person nurse)
         {
             if (nurse == null) throw new ArgumentNullException(nameof(nurse));
-            if (AssistingNurses.Contains(nurse))
-            {
-                AssistingNurses.Remove(nurse);
-                nurse.RemoveAssistedAppointment(this);
-            }
+            AssistingNurses.Remove(nurse);
         }
 
         public void CompleteAppointment(string consultationNotes, string? diagnosisDesc = null, string? medication = null, string? dosage = null)
         {
             Status = "Completed";
-            
-            // Create consultation (if appointment is conducted)
-            var consult = new Consultation(this.Patient.MedicalRecord, DateTime.Now, consultationNotes);
+
+            if (Patient.MedicalRecord == null)
+                throw new InvalidOperationException("Patient must have a MedicalRecord.");
+
+            var consult = new Consultation(Patient.MedicalRecord, DateTime.Now, consultationNotes);
             ResultingConsultation = consult;
 
-            // Optional diagnosis
             if (!string.IsNullOrEmpty(diagnosisDesc))
             {
-                var diag = new Diagnosis(this.Patient.MedicalRecord, diagnosisDesc, DateTime.Now);
-                diag.Consultation = consult; // Link to Consultation
+                var diag = new Diagnosis(Patient.MedicalRecord, diagnosisDesc, DateTime.Now);
+                diag.Consultation = consult;
                 Diagnosis = diag;
             }
 
-            // Optional prescription
             if (!string.IsNullOrEmpty(medication) && !string.IsNullOrEmpty(dosage))
             {
-                var presc = new Prescription(this.Patient.MedicalRecord);
-                presc.Medication = medication;
-                presc.Dosage = dosage;
-                presc.Consultation = consult; // Link to Consultation
+                var presc = new Prescription(Patient.MedicalRecord)
+                {
+                    Medication = medication,
+                    Dosage = dosage,
+                    Consultation = consult
+                };
                 Prescription = presc;
             }
         }
 
-       
-        public Appointment(Patient patient, Doctor doctor, DateTime dateTime)
+        public Appointment(Person patient, Person doctor, DateTime dateTime)
         {
             if (patient == null) throw new ArgumentNullException(nameof(patient));
             if (doctor == null) throw new ArgumentNullException(nameof(doctor));
+            if (!patient.IsPatient) throw new ArgumentException("patient must be IsPatient=true.");
+            if (!doctor.IsDoctor) throw new ArgumentException("doctor must be a Doctor.");
+            if (dateTime < DateTime.Now) throw new ArgumentException("Appointment cannot be in the past.");
 
             _dateTime = dateTime;
             _patient = patient;
             _doctor = doctor;
-            
-            _patient.AddAppointment(this);
-            _doctor.AddConductedAppointment(this);
+
+            _patient.InternalAddAppointment(this);
+            _doctor.InternalAddConductedAppointment(this);
 
             Status = "Scheduled";
-
             Extent.Add(this);
         }
 
-       
-        public static void SaveExtent(string file)
-        {
+        public static void SaveExtent(string file) =>
             File.WriteAllText(file, JsonSerializer.Serialize(Extent));
-        }
 
         public static void LoadExtent(string file)
         {
-            if (!File.Exists(file))
-            {
-                Extent = new List<Appointment>();
-                return;
-            }
-
-            var data = JsonSerializer.Deserialize<List<Appointment>>(File.ReadAllText(file));
-            Extent = data ?? new List<Appointment>();
+            if (!File.Exists(file)) { Extent = new(); return; }
+            Extent = JsonSerializer.Deserialize<List<Appointment>>(File.ReadAllText(file)) ?? new();
         }
     }
 }

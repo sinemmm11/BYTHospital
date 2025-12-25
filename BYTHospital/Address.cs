@@ -43,8 +43,6 @@ namespace HospitalSystem
         public string State { get; set; } = "Unknown";
         public string Postcode { get; set; } = "Unknown";
         public string Building { get; set; } = string.Empty;
-
-        
         public string? Apartment { get; set; } = null;
 
         public Person? Person { get; internal set; }

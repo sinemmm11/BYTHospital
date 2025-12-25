@@ -24,18 +24,15 @@ namespace HospitalSystem
             }
         }
 
-        private Employee _staffMember = default!;
-        public Employee StaffMember
+        private Person _staffMember = default!;
+        public Person StaffMember
         {
             get => _staffMember;
             set
             {
                 if (value == null) throw new ArgumentNullException(nameof(StaffMember));
-                if (_staffMember == value) return;
-
-                _staffMember?.InternalRemoveSurgeryParticipation(this);
+                if (!value.IsEmployee) throw new ArgumentException("StaffMember must be IsEmployee=true.");
                 _staffMember = value;
-                _staffMember.InternalAddSurgeryParticipation(this);
             }
         }
 
@@ -51,13 +48,7 @@ namespace HospitalSystem
             }
         }
 
-        public SurgeryStaffParticipation()
-        {
-            Role = "Unknown";
-            Extent.Add(this);
-        }
-
-        public SurgeryStaffParticipation(Surgery surgery, Employee staff, string role)
+        public SurgeryStaffParticipation(Surgery surgery, Person staff, string role)
         {
             Surgery = surgery ?? throw new ArgumentNullException(nameof(surgery));
             StaffMember = staff ?? throw new ArgumentNullException(nameof(staff));
