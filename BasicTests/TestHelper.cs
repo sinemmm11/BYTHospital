@@ -64,7 +64,7 @@ namespace HospitalSystem.Tests
                 DateOfBirth = new DateTime(2000, 1, 1)
             };
 
-            p.MakePatient(responsibleDoctor); // MedicalRecord + ResponsibleDoctor bağlar
+            p.MakePatient(responsibleDoctor); 
             return p;
         }
     }
